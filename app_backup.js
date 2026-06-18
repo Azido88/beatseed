@@ -16,8 +16,8 @@ const TEXT = {
     copied: "Copied",
     noLoops: "No loops yet. Start the beat with one sound.",
     vol: "Vol",
-    editChop: "Edit Remix",
-    chop: "Remix / Rearrange",
+    editChop: "Edit Chop",
+    chop: "Chop",
     remove: "Remove",
     selected: "Selected",
     replace: "Replace",
@@ -46,50 +46,7 @@ const TEXT = {
     beatSaved: "Beat saved on this device.",
     untitledBeat: "Untitled Beat",
     friendBeat: "Friend Beat",
-    beatPrefix: "Beat",
-    startBeatTitle: "Create a Beat Together",
-    collabBeatTitle: "{name} started this beat",
-    startBeatText: "Add one musical idea, then pass it on.",
-    collabBeatText: "Listen to what they made, then choose an element to add.",
-    creatorNextTitle: "Nice - you added {elements}",
-    creatorNextText: "Add another element yourself, or send this beat to a friend to complete it.",
-    chooseDifferentElement: "Choose a Different Element",
-    inviteShareTitle: "Send to a friend to complete",
-    inviteShareHint: "Copy this link and send it to someone. They can listen and add the next part.",
-    producerLabel: "Producer name",
-    producerPlaceholder: "Your name or artist name",
-    continueButton: "Continue",
-    anonymousButton: "Continue as Anonymous",
-    chooseElement: "Step 1: Choose an element",
-    chooseStyle: "Step 2: Choose a style",
-    pickLoop: "Step 3: Pick a loop",
-    nextStep: "Next step",
-    addAnotherElement: "Add another element",
-    sendToFriend: "Send to a friend to complete",
-    alreadyAdded: "Already added",
-    noMatchingLoops: "No loops match that element and style yet.",
-    completeBeat: "Beat complete",
-    completeBeatText: "All available elements are in. Share the finished beat.",
-    drumsElement: "Drums",
-    bassElement: "Bass",
-    instrumentsElement: "Other Instruments",
-    vocalsElement: "Vocals",
-    hiphopStyle: "Hip-Hop",
-    electronicStyle: "Electronic",
-    lofiStyle: "Lo-Fi",
-    latinStyle: "Latin",
-    nameStepHelp: "Tell your collaborator who is adding the next part.",
-    chooseElementHelp: "Choose what you want to add to this beat.",
-    chooseStyleHelp: "Pick a style to filter the loop list.",
-    pickLoopHelp: "Now choose one loop from the list above.",
-    continueBeatHelp: "Add another element yourself, or send this beat to a friend to complete it.",
-    changeChoice: "Choose a Different Element",
-    anonymousName: "Anonymous",
-    chooseAnotherElement: "Choose another element",
-    addedElementPrefix: "Nice - you added {element}.",
-    pickDifferentLoop: "Pick a Different Loop",
-    inviteLinkCopied: "Invite link copied",
-    locked: "Locked"
+    beatPrefix: "Beat"
   },
 
   zhTW: {
@@ -107,8 +64,8 @@ const TEXT = {
     copied: "已複製",
     noLoops: "還沒有 Loop。先加入一個聲音吧。",
     vol: "音量",
-    editChop: "編輯 Remix",
-    chop: "重新編排",
+    editChop: "編輯切片",
+    chop: "切片",
     remove: "移除",
     selected: "已選擇",
     replace: "替換",
@@ -137,45 +94,7 @@ const TEXT = {
     beatSaved: "節拍已儲存在此裝置。",
     untitledBeat: "未命名節拍",
     friendBeat: "朋友的節拍",
-    beatPrefix: "節拍",
-    startBeatTitle: "一起創作節拍",
-    collabBeatTitle: "{name} 開始了這個節拍",
-    startBeatText: "加入一個音樂想法，然後傳給朋友繼續完成。",
-    collabBeatText: "先聽聽已經完成的部分，再選擇你要加入的元素。",
-    producerLabel: "製作人名稱",
-    producerPlaceholder: "你的名字或藝名",
-    continueButton: "繼續",
-    anonymousButton: "匿名繼續",
-    chooseElement: "步驟 1：選擇元素",
-    chooseStyle: "步驟 2：選擇風格",
-    pickLoop: "步驟 3：選擇 Loop",
-    nextStep: "下一步",
-    addAnotherElement: "加入另一個元素",
-    sendToFriend: "傳給朋友一起完成",
-    alreadyAdded: "已加入",
-    noMatchingLoops: "目前沒有符合這個元素和風格的 Loop。",
-    completeBeat: "節拍完成",
-    completeBeatText: "目前可用的元素都已加入。分享完成的節拍吧。",
-    drumsElement: "鼓組",
-    bassElement: "低音",
-    instrumentsElement: "其他樂器",
-    vocalsElement: "人聲",
-    hiphopStyle: "Hip-Hop",
-    electronicStyle: "Electronic",
-    lofiStyle: "Lo-Fi",
-    latinStyle: "Latin",
-    nameStepHelp: "先告訴朋友這一段是誰加入的。",
-    chooseElementHelp: "選擇你想加入這個節拍的元素。",
-    chooseStyleHelp: "選擇風格來篩選 Loop。",
-    pickLoopHelp: "現在從上方列表選擇一個 Loop。",
-    continueBeatHelp: "你可以自己再加入另一個元素，也可以傳給朋友繼續完成。",
-    changeChoice: "更改元素 / 風格",
-    anonymousName: "匿名",
-    chooseAnotherElement: "選擇另一個元素",
-    addedElementPrefix: "很好 - 你加入了 {element}。",
-    pickDifferentLoop: "選擇不同 Loop",
-    inviteLinkCopied: "邀請連結已複製",
-    locked: "已鎖定"
+    beatPrefix: "節拍"
   }
 };
 
@@ -189,74 +108,26 @@ function t(key) {
 }
 
 const LOOP_LIBRARY = [
-  { id: "drums_01", name: "Boom Bap Drums 01", file: "audio/loops/drums_1.mp3", type: "drums", tags: ["drums", "hiphop"], gain: 1.0 },
-  { id: "drums_02", name: "Boom Bap Drums 02", file: "audio/loops/drums_2.mp3", type: "drums", tags: ["drums", "hiphop"], gain: 1.0 },
-  { id: "drums_03", name: "Dusty Drums 01", file: "audio/loops/drums_3.mp3", type: "drums", tags: ["drums", "hiphop", "lofi"], gain: 1.0 },
-  { id: "drums_04", name: "Funky Drums 01", file: "audio/loops/drums_4.mp3", type: "drums", tags: ["drums", "hiphop", "lofi"], gain: 1.0 },
-  { id: "drums_05", name: "Funky Drums 02", file: "audio/loops/drums_5.mp3", type: "drums", tags: ["drums", "hiphop", "lofi"], gain: 1.0 },
-  { id: "drums_06", name: "Reggaeton Groove 01", file: "audio/loops/drums_6.mp3", type: "drums", tags: ["drums", "latin"], gain: 1.0 },
-  { id: "drums_07", name: "Reggaeton Groove 02", file: "audio/loops/drums_7.mp3", type: "drums", tags: ["drums", "latin"], gain: 1.0 },
-  { id: "drums_08", name: "Reggaeton Groove 03", file: "audio/loops/drums_8.mp3", type: "drums", tags: ["drums", "latin"], gain: 1.0 },
-  { id: "drums_09", name: "Chill Reggaeton Drums 01", file: "audio/loops/drums_9.mp3", type: "drums", tags: ["drums", "latin", "lofi"], gain: 1.0 },
-  { id: "drums_10", name: "Reggaeton Groove 04", file: "audio/loops/drums_10.mp3", type: "drums", tags: ["drums", "latin"], gain: 1.0 },
-  { id: "drums_11", name: "Funky Drums 03", file: "audio/loops/drums_11.mp3", type: "drums", tags: ["drums", "hiphop", "lofi"], gain: 1.0 },
-  { id: "drums_12", name: "Funky Drums 04", file: "audio/loops/drums_12.mp3", type: "drums", tags: ["drums", "hiphop", "lofi"], gain: 1.0 },
-  { id: "drums_13", name: "Boom Bap Drums 03", file: "audio/loops/drums_13.mp3", type: "drums", tags: ["drums", "hiphop"], gain: 1.0 },
-  { id: "drums_14", name: "Funky Drums 05", file: "audio/loops/drums_14.mp3", type: "drums", tags: ["drums", "hiphop", "lofi"], gain: 1.0 },
-  { id: "drums_15", name: "Chill Drums 01", file: "audio/loops/drums_15.mp3", type: "drums", tags: ["drums", "electronic", "lofi"], gain: 1.0 },
-  { id: "drums_16", name: "Funky Drums 06", file: "audio/loops/drums_16.mp3", type: "drums", tags: ["drums", "hiphop", "lofi"], gain: 1.0 },
-  { id: "drums_17", name: "Light Glitchy Drums 01", file: "audio/loops/drums_17.mp3", type: "drums", tags: ["drums", "electronic", "lofi"], gain: 1.0 },
-  { id: "drums_18", name: "Funky Drums 07", file: "audio/loops/drums_18.mp3", type: "drums", tags: ["drums", "hiphop", "lofi"], gain: 1.0 },
-  { id: "drums_19", name: "Chill Drums 02", file: "audio/loops/drums_19.mp3", type: "drums", tags: ["drums", "electronic", "lofi"], gain: 1.0 },
-  { id: "drums_20", name: "Straight Drums 01", file: "audio/loops/drums_20.mp3", type: "drums", tags: ["drums", "electronic"], gain: 1.0 },
+    { id: "drums_01", name: "Drums 01", file: "audio/loops/drums_1.mp3", type: "drums", gain: 1.0 },
+    { id: "drums_02", name: "Drums 02", file: "audio/loops/drums_2.mp3", type: "drums", gain: 1.0 },
+    { id: "drums_03", name: "Drums 03", file: "audio/loops/drums_3.mp3", type: "drums", gain: 1.0 },
+    { id: "drums_04", name: "Drums 04", file: "audio/loops/drums_4.mp3", type: "drums", gain: 1.0 },
+    { id: "drums_05", name: "Drums 05", file: "audio/loops/drums_5.mp3", type: "drums", gain: 1.0 },
 
+    { id: "bass_01", name: "Bass 01", file: "audio/loops/bass_1.mp3", type: "bass", gain: 0.8 },
+    { id: "bass_02", name: "Bass 02", file: "audio/loops/bass_2.mp3", type: "bass", gain: 0.8 },
+    { id: "bass_03", name: "Bass 03", file: "audio/loops/bass_3.mp3", type: "bass", gain: 0.8 },
+    { id: "bass_04", name: "Bass 04", file: "audio/loops/bass_4.mp3", type: "bass", gain: 0.8 },
+    { id: "bass_05", name: "Bass 05", file: "audio/loops/bass_5.mp3", type: "bass", gain: 0.8 },
 
-  { id: "bass_01", name: "Funky Deep Bass 01", file: "audio/loops/bass_1.mp3", type: "bass", tags: ["bass", "hiphop", "lofi", "latin"], gain: 0.8 },
-  { id: "bass_02", name: "Funky Bass Guitar 01", file: "audio/loops/bass_2.mp3", type: "bass", tags: ["bass", "hiphop", "lofi", "latin"], gain: 0.8 },
-  { id: "bass_03", name: "Funky Bass Guitar 02", file: "audio/loops/bass_3.mp3", type: "bass", tags: ["bass", "hiphop", "lofi", "latin"], gain: 0.8 },
-  { id: "bass_04", name: "Rolling Bass Synth 01", file: "audio/loops/bass_4.mp3", type: "bass", tags: ["bass", "electronic"], gain: 0.8 },
-  { id: "bass_05", name: "Funky Bass Guitar 03", file: "audio/loops/bass_5.mp3", type: "bass", tags: ["bass", "hiphop", "lofi", "latin"], gain: 0.8 },
-  { id: "bass_06", name: "Fat Electronic Bass 01", file: "audio/loops/bass_6.mp3", type: "bass", tags: ["bass", "electronic"], gain: 0.8 },
-  { id: "bass_07", name: "Funky Bass Guitar 04", file: "audio/loops/bass_7.mp3", type: "bass", tags: ["bass", "hiphop", "lofi", "latin"], gain: 0.8 },
-  { id: "bass_08", name: "Funky Deep Bass 02", file: "audio/loops/bass_8.mp3", type: "bass", tags: ["bass", "hiphop", "lofi", "electronic", "latin"], gain: 0.8 },
-  { id: "bass_09", name: "Glitchy Light Bass 01", file: "audio/loops/bass_9.mp3", type: "bass", tags: ["bass", "hiphop", "electronic"], gain: 0.8 },
-  { id: "bass_10", name: "Playful Bass 01", file: "audio/loops/bass_10.mp3", type: "bass", tags: ["bass", "hiphop", "lofi", "latin"], gain: 0.8 },
-  { id: "bass_11", name: "Crispy Bass 01", file: "audio/loops/bass_11.mp3", type: "bass", tags: ["bass", "hiphop", "lofi", "electronic", "latin"], gain: 0.8 },
-  { id: "bass_12", name: "Simple Sub 01", file: "audio/loops/bass_12.mp3", type: "bass", tags: ["bass", "hiphop", "lofi", "latin"], gain: 0.8 },
-  
-  { id: "texture_01", name: "Chimes 01", file: "audio/loops/texture_1.mp3", type: "texture", tags: ["texture", "hiphop", "lofi"], gain: 0.6 },
-  { id: "texture_02", name: "Gated Guitar 01", file: "audio/loops/texture_2.mp3", type: "texture", tags: ["texture", "electronic", "lofi"], gain: 0.6 },
-  { id: "texture_03", name: "Ethereal Strings 01", file: "audio/loops/texture_3.mp3", type: "texture", tags: ["texture", "hiphop", "lofi"], gain: 0.6 },
-  { id: "texture_04", name: "Electronic Glitches 01", file: "audio/loops/texture_4.mp3", type: "texture", tags: ["texture", "electronic"], gain: 0.6 },
-  { id: "texture_05", name: "Electronic Glitches 02", file: "audio/loops/texture_5.mp3", type: "texture", tags: ["texture", "electronic"], gain: 0.6 },
-  { id: "texture_06", name: "Video Game Bubbles 01", file: "audio/loops/texture_6.mp3", type: "texture", tags: ["texture", "electronic", "hiphop", "lofi"], gain: 0.6 },
-  { id: "texture_07", name: "Electronic Glitches 03", file: "audio/loops/texture_7.mp3", type: "texture", tags: ["texture", "electronic", "hiphop", "lofi", "latin"], gain: 0.6 },
-  { id: "texture_08", name: "Electronic Glitches 04", file: "audio/loops/texture_8.mp3", type: "texture", tags: ["texture", "electronic", "hiphop", "lofi", "latin"], gain: 0.6 },
-
-  { id: "vocal_01", name: "Vocoder Glitched 01", file: "audio/loops/vocal_1.mp3", type: "vocals", tags: ["vocals", "electronic", "hiphop", "lofi"], gain: 0.7 },
-  { id: "vocal_02", name: "Vocoder Vox Glitched 02", file: "audio/loops/vocal_2.mp3", type: "vocals", tags: ["vocals", "electronic", "hiphop", "lofi"], gain: 0.7 },
-  { id: "vocal_03", name: "Melodic Vocal Cuts 01", file: "audio/loops/vocal_3.mp3", type: "vocals", tags: ["vocals", "electronic", "hiphop", "lofi", "latin"], gain: 0.7 },
-  { id: "vocal_04", name: "Melodic Vocal Cuts 02", file: "audio/loops/vocal_4.mp3", type: "vocals", tags: ["vocals", "electronic", "hiphop", "lofi", "latin"], gain: 0.7 },
-  { id: "vocal_05", name: "Ethereal Choir 01", file: "audio/loops/vocal_5.mp3", type: "vocals", tags: ["vocals", "electronic", "hiphop", "lofi", "latin"], gain: 0.7 }
+    { id: "texture_01", name: "Texture 01", file: "audio/loops/texture_1.mp3", type: "texture", gain: 0.6 },
+    { id: "texture_02", name: "Texture 02", file: "audio/loops/texture_2.mp3", type: "texture", gain: 0.6 },
+    { id: "texture_03", name: "Texture 03", file: "audio/loops/texture_3.mp3", type: "texture", gain: 0.6 },
+    { id: "texture_04", name: "Texture 04", file: "audio/loops/texture_4.mp3", type: "texture", gain: 0.6 },
+    { id: "texture_05", name: "Texture 05", file: "audio/loops/texture_5.mp3", type: "texture", gain: 0.6 }
 ];
 
-
-const ELEMENT_OPTIONS = [
-  { key: "drums", textKey: "drumsElement" },
-  { key: "bass", textKey: "bassElement" },
-  { key: "texture", textKey: "instrumentsElement" },
-  { key: "vocals", textKey: "vocalsElement" }
-];
-
-const STYLE_OPTIONS = [
-  { key: "hiphop", textKey: "hiphopStyle" },
-  { key: "electronic", textKey: "electronicStyle" },
-  { key: "lofi", textKey: "lofiStyle" },
-  { key: "latin", textKey: "latinStyle" }
-];
-
-const PRODUCER_NAME_KEY = "beatseed_producer_name";
-const MAX_LAYERS = 8;
+const MAX_LAYERS = 3;
 const DEFAULT_CHOP_SLICES = 8;
 
 let audioContext = null;
@@ -278,26 +149,13 @@ let pausedOffset = 0;
 let selectedChopLoopId = null;
 let selectedChopSlotIndex = 0;
 
-let selectedElementFilter = null;
-let selectedStyleFilter = null;
-let currentProducerName = localStorage.getItem(PRODUCER_NAME_KEY) || "";
-let producerNameDecisionMade = false;
-let hasAutoScrolledToPlayer = false;
-let loadedFromShareLink = false;
-let pendingContributionLoopId = null;
-let pendingContributionElementFilter = null;
-let pendingContributionStyleFilter = null;
-let currentUserContributionType = null;
-
 let chopEditorPlayheadAnimation = null;
 
 let beat = {
   name: "Untitled Beat",
   loops: [],
   volumes: {},
-  chops: {},
-  startedBy: "",
-  contributors: {}
+  chops: {}
 };
 
 const beatNameEl = document.getElementById("beatName");
@@ -309,10 +167,6 @@ const loopLibraryEl = document.getElementById("loopLibrary");
 const loopCountEl = document.getElementById("loopCount");
 const shareLinkEl = document.getElementById("shareLink");
 const copyButton = document.getElementById("copyButton");
-const onboardingPanelEl = document.getElementById("onboardingPanel");
-const playerCardEl = document.querySelector(".player-card");
-const libraryCardEl = document.querySelector(".library-card");
-const shareCardEl = document.querySelector(".share-card");
 const SAVED_BEATS_KEY = "beatseed_saved_beats_v1";
 
 let chopEditorEl = document.getElementById("chopEditor");
@@ -344,8 +198,6 @@ function getSelectedLoopOfType(loopType) {
 function ensureBeatDataObjects() {
   if (!beat.volumes) beat.volumes = {};
   if (!beat.chops) beat.chops = {};
-  if (!beat.contributors) beat.contributors = {};
-  if (!beat.startedBy) beat.startedBy = "";
 }
 
 function getLoopVolume(loopId) {
@@ -616,32 +468,6 @@ function drawWaveformCanvas(canvas, buffer, recipe, useChopPattern, startSlot = 
     ctx.lineTo(gridX, displayHeight);
     ctx.stroke();
   }
-
-  // Strong musical bar markers.
-  // 16-slice mode: markers at 0, 4, 8, 12, 16.
-  // 32-slice mode: each visible row gets start, middle, and end markers.
-  const quarterSize = sliceCount / 4;
-  const markerSlots = [
-    0,
-    quarterSize,
-    quarterSize * 2,
-    quarterSize * 3,
-    sliceCount
-  ];
-
-  ctx.strokeStyle = "rgba(255, 255, 255, 0.48)";
-  ctx.lineWidth = 2.5;
-
-  markerSlots.forEach(markerSlot => {
-    if (markerSlot < startSlot || markerSlot > rowEndSlot) return;
-
-    const markerX = (markerSlot - startSlot) * slotWidth;
-
-    ctx.beginPath();
-    ctx.moveTo(markerX, 0);
-    ctx.lineTo(markerX, displayHeight);
-    ctx.stroke();
-  });
 }
 
 function createVisualizer() {
@@ -708,12 +534,10 @@ function loadBeatFromUrl() {
         const incomingLoop = getLoopById(loopId);
         if (!incomingLoop) return;
 
-        const existingIndex = isSingleUseElement(incomingLoop.type)
-          ? cleanedLoops.findIndex(existingId => {
-              const existingLoop = getLoopById(existingId);
-              return existingLoop && existingLoop.type === incomingLoop.type;
-            })
-          : -1;
+        const existingIndex = cleanedLoops.findIndex(existingId => {
+          const existingLoop = getLoopById(existingId);
+          return existingLoop && existingLoop.type === incomingLoop.type;
+        });
 
         if (existingIndex >= 0) {
           cleanedLoops[existingIndex] = incomingLoop.id;
@@ -722,15 +546,11 @@ function loadBeatFromUrl() {
         }
       });
 
-      loadedFromShareLink = cleanedLoops.length > 0;
-
       beat = {
         name: incoming.name || t("friendBeat"),
         loops: cleanedLoops,
         volumes: incoming.volumes || {},
-        chops: incoming.chops || {},
-        startedBy: incoming.startedBy || "",
-        contributors: incoming.contributors || {}
+        chops: incoming.chops || {}
       };
     }
   } catch (err) {
@@ -738,18 +558,15 @@ function loadBeatFromUrl() {
   }
 
   ensureBeatDataObjects();
-  pendingContributionLoopId = null;
-  pendingContributionElementFilter = null;
-  pendingContributionStyleFilter = null;
-  currentUserContributionType = null;
 }
 
 function updateShareLink() {
   ensureBeatDataObjects();
 
-  const nextUrl = getCurrentShareUrl();
-  shareLinkEl.value = nextUrl;
-  history.replaceState(null, "", nextUrl);
+  const url = new URL(window.location.href);
+  url.hash = "beat=" + safeEncode(beat);
+  shareLinkEl.value = url.toString();
+  history.replaceState(null, "", url.toString());
 }
 
 function renameBeat() {
@@ -806,16 +623,8 @@ function loadSavedBeat(savedBeatId) {
 
   stopBeat();
 
-  loadedFromShareLink = false;
   beat = JSON.parse(JSON.stringify(found.beat));
   ensureBeatDataObjects();
-  producerNameDecisionMade = false;
-  loadedFromShareLink = false;
-
-  pendingContributionLoopId = null;
-  pendingContributionElementFilter = null;
-  pendingContributionStyleFilter = null;
-  currentUserContributionType = null;
 
   selectedChopLoopId = null;
   selectedChopSlotIndex = 0;
@@ -886,441 +695,8 @@ function renderSavedBeats() {
   });
 }
 
-
-function getDisplayProducerName() {
-  return currentProducerName.trim() || t("anonymousName");
-}
-
-function saveProducerNameFromInput() {
-  const input = document.getElementById("producerNameInput");
-  if (!input) return;
-
-  currentProducerName = input.value.trim();
-  producerNameDecisionMade = true;
-
-  if (currentProducerName) {
-    localStorage.setItem(PRODUCER_NAME_KEY, currentProducerName);
-  } else {
-    localStorage.setItem(PRODUCER_NAME_KEY, "");
-  }
-
-  render();
-}
-
-function continueAsAnonymous() {
-  currentProducerName = "";
-  producerNameDecisionMade = true;
-  localStorage.setItem(PRODUCER_NAME_KEY, "");
-  render();
-}
-
-function hasProducerNameDecision() {
-  return producerNameDecisionMade;
-}
-
-function isSingleUseElement(elementKey) {
-  return elementKey === "drums" || elementKey === "bass";
-}
-
-function getUsedElementKeys() {
-  return beat.loops
-    .map(loopId => getLoopById(loopId))
-    .filter(loop => loop)
-    .map(loop => loop.type);
-}
-
-function isElementUsed(elementKey) {
-  return getUsedElementKeys().includes(elementKey);
-}
-
-function isElementUnavailable(elementKey) {
-  if (!isSingleUseElement(elementKey)) {
-    return false;
-  }
-
-  return isElementUsed(elementKey);
-}
-
-function getLoopContributor(loopId) {
-  const loop = getLoopById(loopId);
-  if (!loop || !beat.contributors) return "";
-
-  if (beat.contributors[loopId]) {
-    return beat.contributors[loopId];
-  }
-
-  if (beat.contributors[loop.type]) {
-    return beat.contributors[loop.type];
-  }
-
-  return "";
-}
-
-function beatIsShareReady() {
-  const used = getUsedElementKeys();
-
-  return used.includes("drums")
-    && used.includes("bass")
-    && used.some(elementKey => elementKey !== "drums" && elementKey !== "bass");
-}
-
-function getElementText(elementKey) {
-  const found = ELEMENT_OPTIONS.find(option => option.key === elementKey);
-  return found ? t(found.textKey) : elementKey;
-}
-
-function getContributorElementsText() {
-  const used = getUsedElementKeys();
-
-  if (used.length === 0) {
-    return "";
-  }
-
-  return used.map(key => getElementText(key)).join(" + ");
-}
-
-function getStyleText(styleKey) {
-  const found = STYLE_OPTIONS.find(option => option.key === styleKey);
-  return found ? t(found.textKey) : styleKey;
-}
-
-function loopMatchesGuidedFilters(loop) {
-  if (!selectedElementFilter || !selectedStyleFilter) return false;
-  if (!loop || !Array.isArray(loop.tags)) return false;
-
-  return loop.tags.includes(selectedElementFilter) && loop.tags.includes(selectedStyleFilter);
-}
-
-
-function currentUserHasCompletedContribution() {
-  return currentUserContributionType !== null && pendingContributionLoopId === null;
-}
-
-function getCurrentShareUrl() {
-  ensureBeatDataObjects();
-  const url = new URL(window.location.href);
-  url.hash = "beat=" + safeEncode(beat);
-  return url.toString();
-}
-
-function getPendingLoopElementText() {
-  const loop = pendingContributionLoopId ? getLoopById(pendingContributionLoopId) : null;
-  return loop ? getElementText(loop.type) : "";
-}
-
-async function copyInviteLinkFromGuide() {
-  const inviteInput = document.getElementById("guideInviteLink");
-  const inviteButton = document.getElementById("guideCopyInviteButton");
-  const valueToCopy = inviteInput ? inviteInput.value : getCurrentShareUrl();
-
-  try {
-    await navigator.clipboard.writeText(valueToCopy);
-    if (inviteButton) {
-      inviteButton.textContent = t("inviteLinkCopied");
-      setTimeout(() => inviteButton.textContent = t("sendToFriend"), 900);
-    }
-  } catch (err) {
-    if (inviteInput) {
-      inviteInput.select();
-      document.execCommand("copy");
-    }
-  }
-}
-
-function buildGuideShareHtml() {
-  return `
-    <div class="guide-invite-box">
-      <button id="guideCopyInviteButton" type="button">${t("sendToFriend")}</button>
-      <input id="guideInviteLink" readonly value="${getCurrentShareUrl()}">
-      <p class="hint">${t("inviteShareHint")}</p>
-    </div>
-  `;
-}
-
-function renderOnboardingPanel() {
-  if (!onboardingPanelEl) return;
-
-  const hasLoops = beat.loops.length > 0;
-  const producerReady = hasProducerNameDecision();
-  const starterName = beat.startedBy || Object.values(beat.contributors || {})[0] || "";
-  const complete = beatIsShareReady();
-  const isSharedCollaboration = loadedFromShareLink && hasLoops;
-  const hasCompletedOwnContribution = currentUserHasCompletedContribution();
-
-  onboardingPanelEl.classList.remove("hidden");
-
-  if (pendingContributionLoopId) {
-    onboardingPanelEl.innerHTML = "";
-    onboardingPanelEl.classList.add("hidden");
-    return;
-  }
-
-  const contributionSummary = hasLoops
-    ? beat.loops.map(loopId => {
-        const loop = getLoopById(loopId);
-        if (!loop) return "";
-        const contributor = getLoopContributor(loopId) || t("anonymousName");
-        return `<div class="contributor-pill">${contributor} - ${getElementText(loop.type)}</div>`;
-      }).join("")
-    : "";
-
-  const producerHtml = `
-    <div class="producer-box single-step-box">
-      <label class="label" for="producerNameInput">${t("producerLabel")}</label>
-      <input
-        id="producerNameInput"
-        class="producer-input"
-        type="text"
-        value="${currentProducerName}"
-        placeholder="${t("producerPlaceholder")}">
-      <div class="producer-actions">
-        <button id="continueProducerButton" type="button">${t("continueButton")}</button>
-        <button id="anonymousProducerButton" class="secondary" type="button">${t("anonymousButton")}</button>
-      </div>
-    </div>
-  `;
-
-  const elementButtonsHtml = ELEMENT_OPTIONS.map(option => {
-    const unavailable = isElementUnavailable(option.key);
-    const hasLoopsForElement = LOOP_LIBRARY.some(loop => loop.type === option.key);
-    const selected = selectedElementFilter === option.key;
-    const disabled = unavailable || !hasLoopsForElement;
-    const extraText = unavailable ? ` <span>${t("alreadyAdded")}</span>` : "";
-
-    return `
-      <button
-        class="guide-choice-button ${selected ? "selected" : ""}"
-        data-guide-element="${option.key}"
-        ${disabled ? "disabled" : ""}
-        type="button">
-        ${t(option.textKey)}${extraText}
-      </button>
-    `;
-  }).join("");
-
-  const styleButtonsHtml = STYLE_OPTIONS.map(option => {
-    const selected = selectedStyleFilter === option.key;
-
-    return `
-      <button
-        class="guide-choice-button ${selected ? "selected" : ""}"
-        data-guide-style="${option.key}"
-        type="button">
-        ${t(option.textKey)}
-      </button>
-    `;
-  }).join("");
-
-  if (!producerReady) {
-    const title = isSharedCollaboration && starterName
-      ? t("collabBeatTitle").replace("{name}", starterName)
-      : t("startBeatTitle");
-
-    const body = isSharedCollaboration
-      ? t("collabBeatText")
-      : t("startBeatText");
-
-    onboardingPanelEl.innerHTML = `
-      <div class="guide-header single-step-header">
-        <p class="label">BeatSeed</p>
-        <h2>${title}</h2>
-        <p class="guide-copy">${body}</p>
-      </div>
-      ${producerHtml}
-    `;
-  } else if (beat.loops.length >= MAX_LAYERS) {
-    onboardingPanelEl.innerHTML = `
-      <div class="guide-header single-step-header">
-        <p class="label">${t("nextStep")}</p>
-        <h2>${t("completeBeat")}</h2>
-        <p class="guide-copy">${t("completeBeatText")}</p>
-      </div>
-      ${contributionSummary ? `<div class="contributor-list">${contributionSummary}</div>` : ""}
-      ${buildGuideShareHtml()}
-    `;
-  } else if (!selectedElementFilter) {
-    let title;
-    let body;
-    let eyebrow;
-    let elementHeading;
-
-    if (hasLoops && isSharedCollaboration && !hasCompletedOwnContribution && starterName) {
-      eyebrow = t("nextStep");
-      title = t("collabBeatTitle").replace("{name}", starterName);
-      body = t("collabBeatText");
-      elementHeading = t("chooseElement");
-    } else if (hasLoops && hasCompletedOwnContribution) {
-      eyebrow = t("nextStep");
-      title = t("continueBeatHelp");
-      body = t("addedElementPrefix").replace("{element}", getElementText(currentUserContributionType));
-      elementHeading = t("chooseAnotherElement");
-    } else if (hasLoops) {
-      eyebrow = t("nextStep");
-      title = t("continueBeatHelp");
-      body = t("chooseElementHelp");
-      elementHeading = t("chooseAnotherElement");
-    } else {
-      eyebrow = "BeatSeed";
-      title = t("chooseElement");
-      body = t("chooseElementHelp");
-      elementHeading = t("chooseElement");
-    }
-
-    onboardingPanelEl.innerHTML = `
-      <div class="guide-header single-step-header">
-        <p class="label">${eyebrow}</p>
-        <h2>${title}</h2>
-        <p class="guide-copy">${body}</p>
-      </div>
-      ${contributionSummary ? `<div class="contributor-list">${contributionSummary}</div>` : ""}
-      <div class="guide-step single-visible-step">
-        <h3>${elementHeading}</h3>
-        <div class="guide-button-grid">
-          ${elementButtonsHtml}
-        </div>
-      </div>
-      ${hasLoops && hasCompletedOwnContribution ? buildGuideShareHtml() : ""}
-    `;
-  } else if (!selectedStyleFilter) {
-    onboardingPanelEl.innerHTML = `
-      <div class="guide-header single-step-header">
-        <p class="label">${getElementText(selectedElementFilter)}</p>
-        <h2>${t("chooseStyle")}</h2>
-        <p class="guide-copy">${t("chooseStyleHelp")}</p>
-      </div>
-      <div class="guide-step single-visible-step">
-        <div class="guide-button-grid">
-          ${styleButtonsHtml}
-        </div>
-      </div>
-      <div class="guide-share-actions single-action-centered">
-        <button id="changeChoiceButton" class="secondary" type="button">${t("chooseDifferentElement")}</button>
-      </div>
-    `;
-  } else {
-    onboardingPanelEl.innerHTML = "";
-    onboardingPanelEl.classList.add("hidden");
-  }
-
-  const producerInput = document.getElementById("producerNameInput");
-  if (producerInput) {
-    producerInput.addEventListener("keydown", event => {
-      if (event.key === "Enter") {
-        saveProducerNameFromInput();
-      }
-    });
-  }
-
-  const continueButton = document.getElementById("continueProducerButton");
-  if (continueButton) {
-    continueButton.addEventListener("click", saveProducerNameFromInput);
-  }
-
-  const anonymousButton = document.getElementById("anonymousProducerButton");
-  if (anonymousButton) {
-    anonymousButton.addEventListener("click", continueAsAnonymous);
-  }
-
-  onboardingPanelEl.querySelectorAll("[data-guide-element]").forEach(button => {
-    button.addEventListener("click", () => {
-      selectedElementFilter = button.dataset.guideElement;
-      selectedStyleFilter = null;
-      render();
-    });
-  });
-
-  onboardingPanelEl.querySelectorAll("[data-guide-style]").forEach(button => {
-    button.addEventListener("click", () => {
-      selectedStyleFilter = button.dataset.guideStyle;
-      render();
-    });
-  });
-
-  const changeChoiceButton = document.getElementById("changeChoiceButton");
-  if (changeChoiceButton) {
-    changeChoiceButton.addEventListener("click", () => {
-      selectedElementFilter = null;
-      selectedStyleFilter = null;
-      render();
-    });
-  }
-
-  const guideCopyInviteButton = document.getElementById("guideCopyInviteButton");
-  if (guideCopyInviteButton) {
-    guideCopyInviteButton.addEventListener("click", copyInviteLinkFromGuide);
-  }
-}
-
-function updateGuidedLayoutVisibility() {
-  const hasLoops = beat.loops.length > 0;
-  const producerReady = hasProducerNameDecision();
-  const readyToChooseLoop = producerReady && selectedElementFilter && selectedStyleFilter && !pendingContributionLoopId;
-  const showPlayer = producerReady && hasLoops;
-  const showGuideFooter = producerReady && hasLoops && !pendingContributionLoopId && currentUserHasCompletedContribution();
-
-  if (playerCardEl) {
-    playerCardEl.classList.toggle("hidden", !showPlayer);
-  }
-
-  if (libraryCardEl) {
-    libraryCardEl.classList.toggle("hidden", !readyToChooseLoop);
-  }
-
-  if (shareCardEl) {
-    shareCardEl.classList.add("hidden");
-  }
-
-  const footerEl = document.querySelector(".site-footer");
-  if (footerEl) {
-    footerEl.classList.toggle("hidden", !showGuideFooter);
-  }
-
-  if (!onboardingPanelEl || !playerCardEl) return;
-
-  if (!producerReady) {
-    playerCardEl.insertAdjacentElement("beforebegin", onboardingPanelEl);
-    return;
-  }
-
-  if (pendingContributionLoopId) {
-    playerCardEl.insertAdjacentElement("afterend", onboardingPanelEl);
-    return;
-  }
-
-  if (readyToChooseLoop) {
-    if (libraryCardEl) {
-      libraryCardEl.insertAdjacentElement("afterend", onboardingPanelEl);
-    }
-    return;
-  }
-
-  if (hasLoops) {
-    playerCardEl.insertAdjacentElement("afterend", onboardingPanelEl);
-  } else {
-    playerCardEl.insertAdjacentElement("beforebegin", onboardingPanelEl);
-  }
-}
-
-
-function canCurrentUserEditLoop(loopId) {
-  const loop = getLoopById(loopId);
-  if (!loop) return false;
-
-  // The loop currently being added can always be edited until the user clicks Done.
-  if (pendingContributionLoopId === loopId) {
-    return true;
-  }
-
-  const ownerName = getLoopContributor(loopId);
-  return ownerName === getDisplayProducerName();
-}
-
 function render() {
   ensureBeatDataObjects();
-
-  if (!beat.name || beat.name === "Untitled Beat") {
-    beat.name = `${t("beatPrefix")} ${Math.floor(1000 + Math.random() * 9000)}`;
-  }
 
   beatNameEl.textContent = beat.name;
 
@@ -1331,14 +707,10 @@ function render() {
 
   document.getElementById("heroEyebrow").textContent = t("heroEyebrow");
   document.getElementById("heroTagline").textContent = t("heroTagline");
-  document.getElementById("chooseContributionLabel").textContent = selectedElementFilter && selectedStyleFilter
-    ? t("pickLoop")
-    : t("chooseContribution");
-  document.getElementById("addLoopTitle").textContent = selectedElementFilter && selectedStyleFilter
-    ? `${getElementText(selectedElementFilter)} - ${getStyleText(selectedStyleFilter)}`
-    : t("addLoop");
-  document.getElementById("shareLinkLabel").textContent = t("inviteShareTitle");
-  document.getElementById("shareHint").textContent = t("inviteShareHint");
+  document.getElementById("chooseContributionLabel").textContent = t("chooseContribution");
+  document.getElementById("addLoopTitle").textContent = t("addLoop");
+  document.getElementById("shareLinkLabel").textContent = t("shareLink");
+  document.getElementById("shareHint").textContent = t("shareHint");
   document.getElementById("footerMadeBy").textContent = t("madeBy");
   document.getElementById("footerText").textContent = t("footerText");
   document.getElementById("wishlistText").textContent = t("wishlist");
@@ -1362,29 +734,26 @@ function render() {
     saveButton.textContent = t("save");
     saveButton.addEventListener("click", saveBeatLocally);
 
-    let beatControls = document.getElementById("beatControls");
+  let beatControls = document.getElementById("beatControls");
 
-    if (!beatControls) {
-      beatControls = document.createElement("div");
-      beatControls.id = "beatControls";
-      beatControls.className = "beat-controls";
+  if (!beatControls) {
+    beatControls = document.createElement("div");
+    beatControls.id = "beatControls";
+    beatControls.className = "beat-controls";
 
-      const transport = document.querySelector(".transport");
+    const transport = document.querySelector(".transport");
 
-      if (transport) {
-        transport.insertAdjacentElement("afterend", beatControls);
-      } else {
-        beatNameEl.parentElement.insertAdjacentElement("afterend", beatControls);
-      }
+    if (transport) {
+      transport.insertAdjacentElement("afterend", beatControls);
+    } else {
+      beatNameEl.parentElement.insertAdjacentElement("afterend", beatControls);
     }
-
-    beatControls.appendChild(renameButton);
-    beatControls.appendChild(saveButton);
-    beatControls.appendChild(newBeatButton);
   }
 
-  renderOnboardingPanel();
-  updateGuidedLayoutVisibility();
+  beatControls.appendChild(renameButton);
+  beatControls.appendChild(saveButton);
+  beatControls.appendChild(newBeatButton);
+  }
 
   activeLoopsEl.innerHTML = "";
 
@@ -1395,15 +764,11 @@ function render() {
       const loop = getLoopById(loopId);
       if (!loop) return;
 
-      const contributor =
-          getLoopContributor(loop.id) ||
-          t("anonymousName");
-
       const row = document.createElement("div");
       row.className = "active-loop";
       row.innerHTML = `
         <strong>${index + 1}. ${loop.name}</strong>
-        <span class="loop-meta">${getElementText(loop.type)} - ${contributor}</span>
+        <span class="loop-meta">${loop.type}</span>
 
         <div class="volume-control">
           <span class="loop-meta">${t("vol")}</span>
@@ -1411,23 +776,12 @@ function render() {
           <span class="volume-readout">${Math.round(getLoopVolume(loop.id) * 100)}%</span>
         </div>
 
-        ${
-          canCurrentUserEditLoop(loop.id)
-            ? `<button class="edit-chop-button" type="button">${hasCustomChop(loop.id) ? t("editChop") : t("chop")}</button>
-               <button class="remove-loop-button" type="button">${t("remove")}</button>`
-            : `<span class="locked-loop-pill">${t("locked")}</span>`
-        }
+        <button class="edit-chop-button" type="button">${hasCustomChop(loop.id) ? t("editChop") : t("chop")}</button>
+        <button class="remove-loop-button" type="button">${t("remove")}</button>
       `;
 
-      const removeLoopButton = row.querySelector(".remove-loop-button");
-      if (removeLoopButton) {
-        removeLoopButton.addEventListener("click", () => removeLoop(loop.id));
-      }
-
-      const editChopButton = row.querySelector(".edit-chop-button");
-      if (editChopButton) {
-        editChopButton.addEventListener("click", () => openChopEditor(loop.id));
-      }
+      row.querySelector(".remove-loop-button").addEventListener("click", () => removeLoop(loop.id));
+      row.querySelector(".edit-chop-button").addEventListener("click", () => openChopEditor(loop.id));
 
       const volumeSlider = row.querySelector(".volume-slider");
       const volumeReadout = row.querySelector(".volume-readout");
@@ -1444,56 +798,29 @@ function render() {
 
   loopLibraryEl.innerHTML = "";
 
-  if (selectedElementFilter && selectedStyleFilter) {
-    const filteredLoops = LOOP_LIBRARY.filter(loop => {
-      if (!loopMatchesGuidedFilters(loop)) return false;
+  LOOP_LIBRARY.forEach(loop => {
+    const alreadySelected = beat.loops.includes(loop.id);
+    const selectedLoopOfSameType = getSelectedLoopOfType(loop.type);
+    const hasSameTypeSelected = selectedLoopOfSameType !== undefined;
 
-      if (isSingleUseElement(loop.type) && isElementUsed(loop.type) && !beat.loops.includes(loop.id)) {
-        return false;
-      }
-
-      return !beat.loops.includes(loop.id);
-    });
-
-    if (filteredLoops.length === 0) {
-      loopLibraryEl.innerHTML = `<div class="empty">${t("noMatchingLoops")}</div>`;
+    let buttonLabel = t("add");
+    if (alreadySelected) {
+      buttonLabel = t("selected");
+    } else if (hasSameTypeSelected) {
+      buttonLabel = t("replace");
     }
 
-    filteredLoops.forEach(loop => {
-      const alreadySelected = beat.loops.includes(loop.id);
-      const selectedLoopOfSameType = getSelectedLoopOfType(loop.type);
-      const hasSameTypeSelected = isSingleUseElement(loop.type) && selectedLoopOfSameType !== undefined;
+    const button = document.createElement("button");
+    button.className = alreadySelected ? "loop-button selected" : "loop-button";
+    button.disabled = alreadySelected;
+    button.innerHTML = `<span><strong>${loop.name}</strong><br><span class="loop-meta">${loop.type}</span></span><span class="loop-meta">${buttonLabel}</span>`;
+    button.addEventListener("click", () => addLoop(loop.id));
+    loopLibraryEl.appendChild(button);
+  });
 
-      let buttonLabel = t("add");
-      if (alreadySelected) {
-        buttonLabel = t("selected");
-      } else if (hasSameTypeSelected) {
-        buttonLabel = t("replace");
-      }
-
-      const button = document.createElement("button");
-      button.className = alreadySelected ? "loop-button selected" : "loop-button";
-      button.disabled = alreadySelected;
-      button.innerHTML = `<span><strong>${loop.name}</strong><br><span class="loop-meta">${getElementText(loop.type)}</span></span><span class="loop-meta">${buttonLabel}</span>`;
-      button.addEventListener("click", () => addLoop(loop.id));
-      loopLibraryEl.appendChild(button);
-    });
-
-    const changeButton = document.createElement("button");
-    changeButton.className = "secondary choose-different-element-button";
-    changeButton.type = "button";
-    changeButton.textContent = t("chooseDifferentElement");
-    changeButton.addEventListener("click", () => {
-      selectedElementFilter = null;
-      selectedStyleFilter = null;
-      render();
-    });
-    loopLibraryEl.appendChild(changeButton);
-  }
-
-  updateShareLink();
   renderChopEditor();
   renderSavedBeats();
+  updateShareLink();
 }
 
 function startChopEditorPlayheadAnimation(loopId) {
@@ -1560,63 +887,6 @@ function closeChopEditor() {
   selectedChopLoopId = null;
   selectedChopSlotIndex = 0;
   renderChopEditor();
-}
-
-
-function finishChopContribution() {
-  if (pendingContributionLoopId) {
-    const loop = getLoopById(pendingContributionLoopId);
-    currentUserContributionType = loop ? loop.type : currentUserContributionType;
-    pendingContributionLoopId = null;
-    pendingContributionElementFilter = null;
-    pendingContributionStyleFilter = null;
-    selectedElementFilter = null;
-    selectedStyleFilter = null;
-  }
-
-  closeChopEditor();
-  render();
-}
-
-function pickDifferentLoopForPendingContribution() {
-  if (!pendingContributionLoopId) {
-    closeChopEditor();
-    return;
-  }
-
-  const loopIdToRemove = pendingContributionLoopId;
-  const loopToRemove = getLoopById(loopIdToRemove);
-
-  beat.loops = beat.loops.filter(existingLoopId => existingLoopId !== loopIdToRemove);
-  delete beat.chops[loopIdToRemove];
-  delete beat.volumes[loopIdToRemove];
-
-  if (beat.contributors) {
-    delete beat.contributors[loopIdToRemove];
-
-    if (loopToRemove && isSingleUseElement(loopToRemove.type)) {
-      delete beat.contributors[loopToRemove.type];
-    }
-  }
-
-  selectedElementFilter = pendingContributionElementFilter || (loopToRemove ? loopToRemove.type : null);
-  selectedStyleFilter = pendingContributionStyleFilter;
-
-  pendingContributionLoopId = null;
-  pendingContributionElementFilter = null;
-  pendingContributionStyleFilter = null;
-  currentUserContributionType = null;
-
-  if (selectedChopLoopId === loopIdToRemove) {
-    selectedChopLoopId = null;
-    selectedChopSlotIndex = 0;
-  }
-
-  if (isPlaying) {
-    stopLoopSource(loopIdToRemove);
-  }
-
-  render();
 }
 
 function convertChopRecipe(oldRecipe, newSliceCount) {
@@ -1855,7 +1125,7 @@ function renderChopEditor() {
         <p class="label">${t("chopEditor")}</p>
         <h2>${loop.name}</h2>
       </div>
-      ${pendingContributionLoopId === loop.id ? "" : `<button class="ghost close-chop-button" type="button">${t("close")}</button>`}
+      <button class="ghost close-chop-button" type="button">${t("close")}</button>
     </div>
 
     <div class="chop-grid-buttons">
@@ -1881,21 +1151,16 @@ function renderChopEditor() {
       <button class="secondary random-chop-button" type="button">${t("random")}</button>
       <button class="secondary reverse-chop-button" type="button">${t("reverseSelected")}</button>
       <button class="secondary mute-chop-button" type="button">${t("muteSelected")}</button>
-      <button class="secondary pick-different-loop-button" type="button">${t("pickDifferentLoop")}</button>
       <button class="done-chop-button" type="button">${t("done")}</button>
     </div>
   `;
 
-  const closeChopButton = chopEditorEl.querySelector(".close-chop-button");
-  if (closeChopButton) {
-    closeChopButton.addEventListener("click", closeChopEditor);
-  }
-  chopEditorEl.querySelector(".done-chop-button").addEventListener("click", finishChopContribution);
+  chopEditorEl.querySelector(".close-chop-button").addEventListener("click", closeChopEditor);
+  chopEditorEl.querySelector(".done-chop-button").addEventListener("click", closeChopEditor);
   chopEditorEl.querySelector(".reset-chop-button").addEventListener("click", () => resetCurrentChop(loop.id));
   chopEditorEl.querySelector(".random-chop-button").addEventListener("click", () => randomizeChop(loop.id));
   chopEditorEl.querySelector(".reverse-chop-button").addEventListener("click", () => toggleReverseSelectedChop(loop.id));
   chopEditorEl.querySelector(".mute-chop-button").addEventListener("click", () => toggleSilentSelectedChop(loop.id));
-  chopEditorEl.querySelector(".pick-different-loop-button").addEventListener("click", pickDifferentLoopForPendingContribution);
 
   chopEditorEl.querySelectorAll("[data-grid-size]").forEach(button => {
     button.addEventListener("click", () => changeChopGrid(loop.id, Number(button.dataset.gridSize)));
@@ -2365,24 +1630,17 @@ async function addLoop(loopId) {
   if (!newLoop) return;
 
   let replacedLoopId = null;
-  const wasEmptyBeat = beat.loops.length === 0;
-  const chosenElementFilter = selectedElementFilter || newLoop.type;
-  const chosenStyleFilter = selectedStyleFilter;
 
-  const existingIndex = isSingleUseElement(newLoop.type)
-    ? beat.loops.findIndex(existingLoopId => {
-        const existingLoop = getLoopById(existingLoopId);
-        return existingLoop && existingLoop.type === newLoop.type;
-      })
-    : -1;
+  const existingIndex = beat.loops.findIndex(existingLoopId => {
+    const existingLoop = getLoopById(existingLoopId);
+    return existingLoop && existingLoop.type === newLoop.type;
+  });
 
   if (existingIndex >= 0) {
     replacedLoopId = beat.loops[existingIndex];
     beat.loops[existingIndex] = newLoop.id;
   } else if (beat.loops.length < MAX_LAYERS) {
     beat.loops.push(newLoop.id);
-  } else {
-    return;
   }
 
   if (!beat.chops[newLoop.id]) {
@@ -2392,42 +1650,9 @@ async function addLoop(loopId) {
     };
   }
 
-  let contributorName = getDisplayProducerName();
-
-if (!contributorName || contributorName === t("anonymousName")) {
-  const savedProducerName = localStorage.getItem(PRODUCER_NAME_KEY);
-
-  if (savedProducerName && savedProducerName.trim() !== "") {
-    contributorName = savedProducerName.trim();
-  }
-}
-
-if (!contributorName || contributorName.trim() === "") {
-  contributorName = t("anonymousName");
-}
-
-  if (wasEmptyBeat && !beat.startedBy) {
-    beat.startedBy = contributorName;
-  }
-
-  beat.contributors[newLoop.id] = contributorName;
-
-  if (isSingleUseElement(newLoop.type)) {
-    beat.contributors[newLoop.type] = contributorName;
-  }
-
   if (replacedLoopId) {
     delete beat.chops[replacedLoopId];
     delete beat.volumes[replacedLoopId];
-
-    const replacedLoop = getLoopById(replacedLoopId);
-    if (beat.contributors) {
-      delete beat.contributors[replacedLoopId];
-
-      if (replacedLoop && isSingleUseElement(replacedLoop.type)) {
-        delete beat.contributors[replacedLoop.type];
-      }
-    }
 
     if (selectedChopLoopId === replacedLoopId) {
       selectedChopLoopId = newLoop.id;
@@ -2435,66 +1660,22 @@ if (!contributorName || contributorName.trim() === "") {
     }
   }
 
-  pendingContributionLoopId = newLoop.id;
-  pendingContributionElementFilter = chosenElementFilter;
-  pendingContributionStyleFilter = chosenStyleFilter;
-  currentUserContributionType = null;
-
-  selectedElementFilter = null;
-  selectedStyleFilter = null;
-
   render();
-  openChopEditor(newLoop.id);
 
-  if (playerCardEl && !hasAutoScrolledToPlayer) {
-    hasAutoScrolledToPlayer = true;
-    setTimeout(() => {
-      playerCardEl.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 80);
-  }
+  if (isPlaying) {
+    if (replacedLoopId) {
+      stopLoopSource(replacedLoopId);
+    }
 
-  if (replacedLoopId) {
-    stopLoopSource(replacedLoopId);
-  }
-
-  // Auto-play as soon as a loop is added. This runs from the user's click,
-  // so the browser should allow the AudioContext to start.
-  if (!isPlaying) {
-    await startAllLoopSources();
-  } else {
     await startLoopSource(newLoop.id);
   }
 }
 
 async function removeLoop(loopId) {
-  if (!canCurrentUserEditLoop(loopId)) {
-    return;
-  }
-
   beat.loops = beat.loops.filter(existingLoopId => existingLoopId !== loopId);
-
-  const removedLoop = getLoopById(loopId);
 
   delete beat.chops[loopId];
   delete beat.volumes[loopId];
-
-  if (beat.contributors) {
-    delete beat.contributors[loopId];
-
-    if (removedLoop && isSingleUseElement(removedLoop.type)) {
-      delete beat.contributors[removedLoop.type];
-    }
-  }
-
-  if (pendingContributionLoopId === loopId) {
-    pendingContributionLoopId = null;
-    pendingContributionElementFilter = null;
-    pendingContributionStyleFilter = null;
-  }
-
-  if (removedLoop && currentUserContributionType === removedLoop.type) {
-    currentUserContributionType = null;
-  }
 
   if (selectedChopLoopId === loopId) {
     selectedChopLoopId = null;
@@ -2515,24 +1696,11 @@ function newBeat() {
     name: `${t("beatPrefix")} ${Math.floor(1000 + Math.random() * 9000)}`,
     loops: [],
     volumes: {},
-    chops: {},
-    startedBy: "",
-    contributors: {}
+    chops: {}
   };
-
-  producerNameDecisionMade = false;
-  loadedFromShareLink = false;
-
-  pendingContributionLoopId = null;
-  pendingContributionElementFilter = null;
-  pendingContributionStyleFilter = null;
-  currentUserContributionType = null;
 
   selectedChopLoopId = null;
   selectedChopSlotIndex = 0;
-  selectedElementFilter = null;
-  selectedStyleFilter = null;
-  hasAutoScrolledToPlayer = false;
 
   render();
 }
