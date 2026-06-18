@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>BeatSeed Prototype</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <p id="heroEyebrow" class="eyebrow"></p>
+      <h1>BeatSeed</h1>
+      <p id="heroTagline" class="tagline"></p>
+    </section>
+
+    <section class="player-card">
+      <div class="beat-title-row">
+        <h2 id="beatName"></h2>
+        <button id="newBeatButton"></button>
+      </div>
+
+      <div class="transport">
+        <button id="playButton" class="big">Play</button>
+        <button id="stopButton" class="secondary">Stop</button>
+      </div>
+
+      <div id="activeLoops" class="active-loops"></div>
+    </section>
+
+    <section class="library-card">
+      <div class="section-title-row">
+        <div>
+          <p id="chooseContributionLabel" class="label"></p>
+          <h2 id="addLoopTitle"></h2>
+        </div>
+        <p id="loopCount" class="pill">0 layers</p>
+      </div>
+      <div id="loopLibrary" class="loop-library"></div>
+    </section>
+
+    <section class="share-card">
+      <p id="shareLinkLabel" class="label"></p>
+      <div class="share-row">
+        <input id="shareLink" readonly />
+        <button id="copyButton" class="secondary"></button>
+      </div>
+      <p id="shareHint" class="hint"></p>
+    </section>
+
+  <footer class="site-footer">
+
+  <div class="footer-card">
+    <h3 id="footerMadeBy"></h3>
+
+    <p id="footerText" class="footer-text"></p>
+
+    <div class="footer-links">
+      <a
+        href="https://store.steampowered.com/app/3280990/Stellar_Rhythm/"
+        target="_blank"
+        rel="noopener noreferrer">
+        <span id="wishlistText"></span>
+      </a>
+
+      <span>/</span>
+
+      <a
+        href="https://ko-fi.com/Q5Q561Y7Q"
+        target="_blank"
+        rel="noopener noreferrer">
+        <span id="supportText"></span>
+      </a>
+    </div>
+
+  </div>
+
+</footer>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
