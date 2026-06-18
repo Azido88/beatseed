@@ -876,3 +876,47 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 699px) {
+  .app {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 8px 4px 30px !important;
+  }
+
+  .player-card,
+  .library-card,
+  .share-card,
+  .onboarding-card,
+  .footer-card {
+    width: 100% !important;
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding: 14px !important;
+    border-radius: 20px !important;
+  }
+
+  .hero {
+    padding: 6px 0 10px !important;
+  }
+
+  h1 {
+    font-size: 5rem !important;
+  }
+
+  .guide-header h2 {
+    font-size: 2rem !important;
+  }
+
+  .guide-copy,
+  .tagline {
+    font-size: 1.1rem !important;
+  }
+
+  button,
+  input {
+    font-size: 1rem !important;
+  }
+}
