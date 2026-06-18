@@ -999,7 +999,11 @@ function currentUserHasCompletedContribution() {
 function getCurrentShareUrl() {
   ensureBeatDataObjects();
   const url = new URL(window.location.href);
-  url.hash = "beat=" + safeEncode(beat);
+  if (beat.loops.length > 0) {
+    url.hash = "beat=" + safeEncode(beat);
+  } else {
+    url.hash = "";
+  }
   return url.toString();
 }
 
