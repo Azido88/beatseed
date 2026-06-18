@@ -810,3 +810,70 @@ input {
     width: auto;
   }
 }
+
+html,
+body {
+  min-height: 100vh;
+}
+
+body {
+  background-attachment: fixed;
+}
+
+@media (max-width: 699px) {
+  .app {
+    width: 100%;
+    max-width: none;
+    padding: 18px 10px 36px;
+  }
+
+  .hero {
+    padding: 14px 0 14px;
+  }
+
+  h1 {
+    font-size: clamp(4rem, 21vw, 5.4rem);
+  }
+
+  .tagline {
+    max-width: 92%;
+    font-size: 1rem;
+  }
+
+  .player-card,
+  .library-card,
+  .share-card,
+  .onboarding-card,
+  .footer-card {
+    width: 100%;
+    padding: 18px;
+    border-radius: 24px;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .guide-header h2 {
+    font-size: 1.7rem;
+  }
+
+  .producer-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .guide-button-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  button {
+    min-height: 48px;
+  }
+
+  .transport {
+    grid-template-columns: 1fr;
+  }
+
+  .beat-controls {
+    grid-template-columns: 1fr;
+    max-width: none;
+  }
+}
