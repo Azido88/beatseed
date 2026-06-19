@@ -920,3 +920,190 @@ body {
     font-size: 1rem !important;
   }
 }
+
+
+/* BeatSeed v10 - numbered preview picker + mobile polish */
+.loop-picker-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.number-loop-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+
+.loop-number-button {
+  aspect-ratio: 1;
+  min-height: 0;
+  padding: 0;
+  border-radius: 18px;
+  font-size: 1.25rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.09);
+  border: 1px solid rgba(255,255,255,0.18);
+}
+
+.loop-number-button.selected {
+  background: linear-gradient(135deg, var(--hot), var(--cyan));
+  box-shadow:
+    0 0 0 2px rgba(255,255,255,0.65),
+    0 0 28px rgba(41,231,255,0.48),
+    0 0 42px rgba(255,61,242,0.28);
+  transform: scale(1.06);
+}
+
+.preview-status {
+  text-align: center;
+  color: var(--muted);
+  min-height: 28px;
+  padding: 8px 10px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.16);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+.preview-status.active {
+  color: var(--text);
+  border-color: rgba(119,255,146,0.35);
+  box-shadow: 0 0 20px rgba(119,255,146,0.12);
+}
+
+.loop-picker-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.loop-picker-actions button[disabled] {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+#pickPreviewLoopButton {
+  color: white;
+}
+
+#pickPreviewLoopButton:disabled {
+  opacity: 0.38;
+}
+
+.filter-panel {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 18px;
+  background: rgba(0,0,0,0.16);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.filter-chip-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.filter-chip {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.18);
+}
+
+.filter-chip.selected {
+  background: rgba(119,255,146,0.18);
+  border-color: rgba(119,255,146,0.52);
+  box-shadow: 0 0 20px rgba(119,255,146,0.16);
+}
+
+.reverse-chop-button {
+  background: rgba(119, 255, 146, 0.16);
+  border: 1px solid rgba(119, 255, 146, 0.45);
+}
+
+@media (max-width: 699px) {
+  .app {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 8px 4px 30px !important;
+  }
+
+  .player-card,
+  .library-card,
+  .share-card,
+  .onboarding-card,
+  .footer-card {
+    width: 100% !important;
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding: 14px !important;
+    border-radius: 20px !important;
+  }
+
+  .hero {
+    padding: 6px 0 10px !important;
+  }
+
+  h1 {
+    font-size: 5rem !important;
+  }
+
+  .guide-header h2 {
+    font-size: 2rem !important;
+  }
+
+  .guide-copy,
+  .tagline {
+    font-size: 1.1rem !important;
+  }
+
+  button,
+  input {
+    font-size: 1rem !important;
+  }
+
+  .number-loop-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+
+  .loop-number-button {
+    border-radius: 15px;
+    font-size: 1.15rem;
+  }
+
+  .loop-picker-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+html {
+  min-height: 100%;
+  background: #080815;
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: linear-gradient(135deg, #12001f, #001b33, #200018, #002b22);
+  background-size: 400% 400%;
+  background-attachment: fixed;
+}
+
+#pickPreviewLoopButton,
+#pickPreviewLoopButton:not(:disabled),
+.loop-picker-actions #pickPreviewLoopButton {
+  color: #ffffff !important;
+  opacity: 1 !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+#pickPreviewLoopButton:disabled {
+  color: rgba(255,255,255,0.55) !important;
+  opacity: 0.6 !important;
+  -webkit-text-fill-color: rgba(255,255,255,0.55) !important;
+}

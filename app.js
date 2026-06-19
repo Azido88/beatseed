@@ -39,7 +39,7 @@ const TEXT = {
     originalLoop: "Original loop - tap a slice to place it above",
     reset: "Reset",
     random: "Random",
-    reverseSelected: "Reverse selected",
+    reverseSelected: "Stutter selected",
     muteSelected: "Mute selected",
     done: "Done",
     beatNamePrompt: "Beat name:",
@@ -89,7 +89,13 @@ const TEXT = {
     addedElementPrefix: "Nice - you added {element}.",
     pickDifferentLoop: "Pick a Different Loop",
     inviteLinkCopied: "Invite link copied",
-    locked: "Locked"
+    locked: "Locked",
+    pickThisLoop: "Pick This Loop",
+    filterResults: "Filter Results",
+    hideFilters: "Hide Filters",
+    previewing: "Previewing",
+    noFiltersActive: "All styles",
+    shareLatestUpdate: "Share Latest Update"
   },
 
   zhTW: {
@@ -130,7 +136,7 @@ const TEXT = {
     originalLoop: "原始 Loop - 點選下方切片放到上方",
     reset: "重設",
     random: "隨機",
-    reverseSelected: "反轉所選",
+    reverseSelected: "Stutter 所選",
     muteSelected: "靜音所選",
     done: "完成",
     beatNamePrompt: "節拍名稱：",
@@ -175,7 +181,13 @@ const TEXT = {
     addedElementPrefix: "很好 - 你加入了 {element}。",
     pickDifferentLoop: "選擇不同 Loop",
     inviteLinkCopied: "邀請連結已複製",
-    locked: "已鎖定"
+    locked: "已鎖定",
+    pickThisLoop: "選擇這個 Loop",
+    filterResults: "篩選結果",
+    hideFilters: "隱藏篩選",
+    previewing: "預覽中",
+    noFiltersActive: "所有風格",
+    shareLatestUpdate: "分享最新版本"
   }
 };
 
@@ -270,6 +282,8 @@ let reversedBuffersById = new Map();
 let activeSourcesByLoopId = new Map();
 let activeGainNodesByLoopId = new Map();
 let playingChopSlotByLoopId = new Map();
+let activePreviewSource = null;
+let activePreviewGainNode = null;
 
 let isPlaying = false;
 let transportStartTime = 0;
@@ -280,6 +294,9 @@ let selectedChopSlotIndex = 0;
 
 let selectedElementFilter = null;
 let selectedStyleFilter = null;
+let selectedStyleFilters = [];
+let previewLoopId = null;
+let filterPanelOpen = false;
 let currentProducerName = localStorage.getItem(PRODUCER_NAME_KEY) || "";
 let producerNameDecisionMade = false;
 let hasAutoScrolledToPlayer = false;
@@ -390,7 +407,7 @@ function getChopRecipe(loopId) {
     return {
       slices: DEFAULT_CHOP_SLICES,
       pattern: makeIdentityPattern(DEFAULT_CHOP_SLICES),
-      reverse: {},
+      stutter: {},
       silent: {}
     };
   }
@@ -408,12 +425,13 @@ function getChopRecipe(loopId) {
     return Math.max(0, Math.min(sliceCount - 1, cleanValue));
   });
 
-  const reverse = {};
-  if (recipe.reverse) {
-    for (const key in recipe.reverse) {
+  const stutter = {};
+  const incomingStutter = recipe.stutter || recipe.reverse || {};
+  if (incomingStutter) {
+    for (const key in incomingStutter) {
       const cleanKey = Math.floor(Number(key));
       if (!Number.isNaN(cleanKey) && cleanKey >= 0 && cleanKey < sliceCount) {
-        reverse[cleanKey] = recipe.reverse[key] === true;
+        stutter[cleanKey] = incomingStutter[key] === true;
       }
     }
   }
@@ -431,7 +449,7 @@ function getChopRecipe(loopId) {
   return {
     slices: sliceCount,
     pattern: pattern,
-    reverse: reverse,
+    stutter: stutter,
     silent: silent
   };
 }
@@ -442,7 +460,7 @@ function setChopRecipe(loopId, recipe) {
   beat.chops[loopId] = {
     slices: recipe.slices,
     pattern: recipe.pattern.slice(),
-    reverse: recipe.reverse || {},
+    stutter: recipe.stutter || recipe.reverse || {},
     silent: recipe.silent || {}
   };
 
@@ -471,7 +489,7 @@ function hasCustomChop(loopId) {
 
   for (let i = 0; i < recipe.pattern.length; i++) {
     if (recipe.pattern[i] !== i) return true;
-    if (recipe.reverse && recipe.reverse[i] === true) return true;
+    if (recipe.stutter && recipe.stutter[i] === true) return true;
     if (recipe.silent && recipe.silent[i] === true) return true;
   }
 
@@ -570,7 +588,7 @@ function drawWaveformCanvas(canvas, buffer, recipe, useChopPattern, startSlot = 
 
   for (let slotIndex = startSlot; slotIndex < rowEndSlot; slotIndex++) {
     const sourceSliceIndex = useChopPattern ? recipe.pattern[slotIndex] : slotIndex;
-    const isReversed = useChopPattern && recipe.reverse && recipe.reverse[slotIndex] === true;
+    const isStutter = useChopPattern && recipe.stutter && recipe.stutter[slotIndex] === true;
 
     const sourceStartSample = Math.floor((sourceSliceIndex / sliceCount) * data.length);
     const sourceEndSample = Math.floor(((sourceSliceIndex + 1) / sliceCount) * data.length);
@@ -582,7 +600,7 @@ function drawWaveformCanvas(canvas, buffer, recipe, useChopPattern, startSlot = 
 
     for (let px = Math.floor(visualStartX); px < Math.floor(visualEndX); px++) {
       const rawLocalPos = (px - visualStartX) / slotWidth;
-      const localPos = isReversed ? 1 - rawLocalPos : rawLocalPos;
+      const localPos = isStutter ? (rawLocalPos % Math.max(0.01, (1 / 64) / (1 / sliceCount))) : rawLocalPos;
       const sampleIndex = sourceStartSample + Math.floor(localPos * sourceLength);
 
       let minValue = 1;
@@ -742,6 +760,9 @@ function loadBeatFromUrl() {
   pendingContributionElementFilter = null;
   pendingContributionStyleFilter = null;
   currentUserContributionType = null;
+  selectedStyleFilters = [];
+  previewLoopId = null;
+  filterPanelOpen = false;
 }
 
 function updateShareLink() {
@@ -964,6 +985,41 @@ function beatIsShareReady() {
     && used.some(elementKey => elementKey !== "drums" && elementKey !== "bass");
 }
 
+
+function getCompletedLoopsOwnedByCurrentUser() {
+  const currentName = getDisplayProducerName();
+
+  return beat.loops.filter(loopId => {
+    if (pendingContributionLoopId === loopId) return false;
+    return getLoopContributor(loopId) === currentName;
+  });
+}
+
+function currentUserOwnsAnyCompletedLoop() {
+  return getCompletedLoopsOwnedByCurrentUser().length > 0;
+}
+
+function getAvailableLoopsForSelectedElement() {
+  if (!selectedElementFilter) return [];
+
+  return LOOP_LIBRARY.filter(loop => {
+    if (loop.type !== selectedElementFilter) return false;
+    if (beat.loops.includes(loop.id)) return false;
+
+    if (isSingleUseElement(loop.type) && isElementUsed(loop.type)) {
+      return false;
+    }
+
+    if (selectedStyleFilters.length === 0) {
+      return true;
+    }
+
+    if (!Array.isArray(loop.tags)) return false;
+
+    return selectedStyleFilters.some(styleKey => loop.tags.includes(styleKey));
+  });
+}
+
 function getElementText(elementKey) {
   const found = ELEMENT_OPTIONS.find(option => option.key === elementKey);
   return found ? t(found.textKey) : elementKey;
@@ -985,10 +1041,15 @@ function getStyleText(styleKey) {
 }
 
 function loopMatchesGuidedFilters(loop) {
-  if (!selectedElementFilter || !selectedStyleFilter) return false;
+  if (!selectedElementFilter) return false;
   if (!loop || !Array.isArray(loop.tags)) return false;
+  if (loop.type !== selectedElementFilter) return false;
 
-  return loop.tags.includes(selectedElementFilter) && loop.tags.includes(selectedStyleFilter);
+  if (selectedStyleFilters.length === 0) {
+    return true;
+  }
+
+  return selectedStyleFilters.some(styleKey => loop.tags.includes(styleKey));
 }
 
 
@@ -1034,10 +1095,10 @@ async function copyInviteLinkFromGuide() {
   }
 }
 
-function buildGuideShareHtml() {
+function buildGuideShareHtml(buttonTextKey = "sendToFriend") {
   return `
     <div class="guide-invite-box">
-      <button id="guideCopyInviteButton" type="button">${t("sendToFriend")}</button>
+      <button id="guideCopyInviteButton" type="button">${t(buttonTextKey)}</button>
       <input id="guideInviteLink" readonly value="${getCurrentShareUrl()}">
       <p class="hint">${t("inviteShareHint")}</p>
     </div>
@@ -1050,9 +1111,9 @@ function renderOnboardingPanel() {
   const hasLoops = beat.loops.length > 0;
   const producerReady = hasProducerNameDecision();
   const starterName = beat.startedBy || Object.values(beat.contributors || {})[0] || "";
-  const complete = beatIsShareReady();
   const isSharedCollaboration = loadedFromShareLink && hasLoops;
   const hasCompletedOwnContribution = currentUserHasCompletedContribution();
+  const ownsCompletedLoop = currentUserOwnsAnyCompletedLoop();
 
   onboardingPanelEl.classList.remove("hidden");
 
@@ -1091,7 +1152,7 @@ function renderOnboardingPanel() {
     const unavailable = isElementUnavailable(option.key);
     const hasLoopsForElement = LOOP_LIBRARY.some(loop => loop.type === option.key);
     const selected = selectedElementFilter === option.key;
-    const disabled = unavailable || !hasLoopsForElement;
+    const disabled = unavailable || !hasLoopsForElement || beat.loops.length >= MAX_LAYERS;
     const extraText = unavailable ? ` <span>${t("alreadyAdded")}</span>` : "";
 
     return `
@@ -1101,19 +1162,6 @@ function renderOnboardingPanel() {
         ${disabled ? "disabled" : ""}
         type="button">
         ${t(option.textKey)}${extraText}
-      </button>
-    `;
-  }).join("");
-
-  const styleButtonsHtml = STYLE_OPTIONS.map(option => {
-    const selected = selectedStyleFilter === option.key;
-
-    return `
-      <button
-        class="guide-choice-button ${selected ? "selected" : ""}"
-        data-guide-style="${option.key}"
-        type="button">
-        ${t(option.textKey)}
       </button>
     `;
   }).join("");
@@ -1143,7 +1191,7 @@ function renderOnboardingPanel() {
         <p class="guide-copy">${t("completeBeatText")}</p>
       </div>
       ${contributionSummary ? `<div class="contributor-list">${contributionSummary}</div>` : ""}
-      ${buildGuideShareHtml()}
+      ${buildGuideShareHtml(ownsCompletedLoop ? "shareLatestUpdate" : "sendToFriend")}
     `;
   } else if (!selectedElementFilter) {
     let title;
@@ -1151,7 +1199,7 @@ function renderOnboardingPanel() {
     let eyebrow;
     let elementHeading;
 
-    if (hasLoops && isSharedCollaboration && !hasCompletedOwnContribution && starterName) {
+    if (hasLoops && isSharedCollaboration && !hasCompletedOwnContribution && !ownsCompletedLoop && starterName) {
       eyebrow = t("nextStep");
       title = t("collabBeatTitle").replace("{name}", starterName);
       body = t("collabBeatText");
@@ -1164,7 +1212,7 @@ function renderOnboardingPanel() {
     } else if (hasLoops) {
       eyebrow = t("nextStep");
       title = t("continueBeatHelp");
-      body = t("chooseElementHelp");
+      body = ownsCompletedLoop ? t("chooseElementHelp") : t("collabBeatText");
       elementHeading = t("chooseAnotherElement");
     } else {
       eyebrow = "BeatSeed";
@@ -1186,23 +1234,7 @@ function renderOnboardingPanel() {
           ${elementButtonsHtml}
         </div>
       </div>
-      ${hasLoops && hasCompletedOwnContribution ? buildGuideShareHtml() : ""}
-    `;
-  } else if (!selectedStyleFilter) {
-    onboardingPanelEl.innerHTML = `
-      <div class="guide-header single-step-header">
-        <p class="label">${getElementText(selectedElementFilter)}</p>
-        <h2>${t("chooseStyle")}</h2>
-        <p class="guide-copy">${t("chooseStyleHelp")}</p>
-      </div>
-      <div class="guide-step single-visible-step">
-        <div class="guide-button-grid">
-          ${styleButtonsHtml}
-        </div>
-      </div>
-      <div class="guide-share-actions single-action-centered">
-        <button id="changeChoiceButton" class="secondary" type="button">${t("chooseDifferentElement")}</button>
-      </div>
+      ${hasLoops && ownsCompletedLoop ? buildGuideShareHtml(hasCompletedOwnContribution ? "sendToFriend" : "shareLatestUpdate") : ""}
     `;
   } else {
     onboardingPanelEl.innerHTML = "";
@@ -1230,27 +1262,15 @@ function renderOnboardingPanel() {
 
   onboardingPanelEl.querySelectorAll("[data-guide-element]").forEach(button => {
     button.addEventListener("click", () => {
+      stopPreviewLoop();
+      previewLoopId = null;
       selectedElementFilter = button.dataset.guideElement;
       selectedStyleFilter = null;
+      selectedStyleFilters = [];
+      filterPanelOpen = false;
       render();
     });
   });
-
-  onboardingPanelEl.querySelectorAll("[data-guide-style]").forEach(button => {
-    button.addEventListener("click", () => {
-      selectedStyleFilter = button.dataset.guideStyle;
-      render();
-    });
-  });
-
-  const changeChoiceButton = document.getElementById("changeChoiceButton");
-  if (changeChoiceButton) {
-    changeChoiceButton.addEventListener("click", () => {
-      selectedElementFilter = null;
-      selectedStyleFilter = null;
-      render();
-    });
-  }
 
   const guideCopyInviteButton = document.getElementById("guideCopyInviteButton");
   if (guideCopyInviteButton) {
@@ -1261,9 +1281,9 @@ function renderOnboardingPanel() {
 function updateGuidedLayoutVisibility() {
   const hasLoops = beat.loops.length > 0;
   const producerReady = hasProducerNameDecision();
-  const readyToChooseLoop = producerReady && selectedElementFilter && selectedStyleFilter && !pendingContributionLoopId;
+  const readyToChooseLoop = producerReady && selectedElementFilter && !pendingContributionLoopId;
   const showPlayer = producerReady && hasLoops;
-  const showGuideFooter = producerReady && hasLoops && !pendingContributionLoopId && currentUserHasCompletedContribution();
+  const showGuideFooter = producerReady && hasLoops && !pendingContributionLoopId && currentUserOwnsAnyCompletedLoop();
 
   if (playerCardEl) {
     playerCardEl.classList.toggle("hidden", !showPlayer);
@@ -1338,11 +1358,11 @@ function render() {
 
   document.getElementById("heroEyebrow").textContent = t("heroEyebrow");
   document.getElementById("heroTagline").textContent = t("heroTagline");
-  document.getElementById("chooseContributionLabel").textContent = selectedElementFilter && selectedStyleFilter
+  document.getElementById("chooseContributionLabel").textContent = selectedElementFilter
     ? t("pickLoop")
     : t("chooseContribution");
-  document.getElementById("addLoopTitle").textContent = selectedElementFilter && selectedStyleFilter
-    ? `${getElementText(selectedElementFilter)} - ${getStyleText(selectedStyleFilter)}`
+  document.getElementById("addLoopTitle").textContent = selectedElementFilter
+    ? getElementText(selectedElementFilter)
     : t("addLoop");
   document.getElementById("shareLinkLabel").textContent = t("inviteShareTitle");
   document.getElementById("shareHint").textContent = t("inviteShareHint");
@@ -1351,7 +1371,7 @@ function render() {
   document.getElementById("wishlistText").textContent = t("wishlist");
   document.getElementById("supportText").textContent = t("support");
 
-  loopCountEl.textContent = `${beat.loops.length} ${t("layers")}`;
+  loopCountEl.style.display = "none";
 
   if (!document.getElementById("renameBeatButton")) {
     const renameButton = document.createElement("button");
@@ -1451,51 +1471,103 @@ function render() {
 
   loopLibraryEl.innerHTML = "";
 
-  if (selectedElementFilter && selectedStyleFilter) {
-    const filteredLoops = LOOP_LIBRARY.filter(loop => {
-      if (!loopMatchesGuidedFilters(loop)) return false;
+  if (selectedElementFilter) {
+    const filteredLoops = getAvailableLoopsForSelectedElement();
+    const previewLoopData = previewLoopId ? getLoopById(previewLoopId) : null;
 
-      if (isSingleUseElement(loop.type) && isElementUsed(loop.type) && !beat.loops.includes(loop.id)) {
-        return false;
-      }
+    const filterButtonsHtml = STYLE_OPTIONS.map(option => {
+      const selected = selectedStyleFilters.includes(option.key);
 
-      return !beat.loops.includes(loop.id);
+      return `
+        <button
+          class="filter-chip ${selected ? "selected" : ""}"
+          data-filter-style="${option.key}"
+          type="button">
+          ${t(option.textKey)}
+        </button>
+      `;
+    }).join("");
+
+    const loopButtonsHtml = filteredLoops.map((loop, screenIndex) => {
+      const selected = previewLoopId === loop.id;
+
+      return `
+        <button
+          class="loop-number-button ${selected ? "selected" : ""}"
+          data-preview-loop-id="${loop.id}"
+          type="button"
+          aria-label="${loop.name}">
+          ${screenIndex + 1}
+        </button>
+      `;
+    }).join("");
+
+    loopLibraryEl.innerHTML = `
+      <div class="loop-picker-panel">
+        <div class="number-loop-grid">
+          ${loopButtonsHtml || `<div class="empty">${t("noMatchingLoops")}</div>`}
+        </div>
+
+        <div class="preview-status ${previewLoopData ? "active" : ""}">
+          ${previewLoopData ? `${t("previewing")}: <strong>${previewLoopData.name}</strong>` : t("pickLoopHelp")}
+        </div>
+
+        <div class="loop-picker-actions">
+          <button
+            id="pickPreviewLoopButton"
+            type="button"
+            ${previewLoopData ? "" : "disabled"}>
+            ${t("pickThisLoop")}
+          </button>
+          <button id="toggleFilterPanelButton" class="secondary" type="button">
+            ${filterPanelOpen ? t("hideFilters") : t("filterResults")}
+          </button>
+        </div>
+
+        <div class="filter-panel ${filterPanelOpen ? "" : "hidden"}">
+          <p class="loop-meta">${selectedStyleFilters.length === 0 ? t("noFiltersActive") : selectedStyleFilters.map(getStyleText).join(" / ")}</p>
+          <div class="filter-chip-grid">
+            ${filterButtonsHtml}
+          </div>
+        </div>
+      </div>
+    `;
+
+    loopLibraryEl.querySelectorAll("[data-preview-loop-id]").forEach(button => {
+      button.addEventListener("click", () => previewLoop(button.dataset.previewLoopId));
     });
 
-    if (filteredLoops.length === 0) {
-      loopLibraryEl.innerHTML = `<div class="empty">${t("noMatchingLoops")}</div>`;
+    const pickPreviewLoopButton = document.getElementById("pickPreviewLoopButton");
+    if (pickPreviewLoopButton) {
+      pickPreviewLoopButton.addEventListener("click", confirmPreviewLoop);
     }
 
-    filteredLoops.forEach(loop => {
-      const alreadySelected = beat.loops.includes(loop.id);
-      const selectedLoopOfSameType = getSelectedLoopOfType(loop.type);
-      const hasSameTypeSelected = isSingleUseElement(loop.type) && selectedLoopOfSameType !== undefined;
+    const toggleFilterPanelButton = document.getElementById("toggleFilterPanelButton");
+    if (toggleFilterPanelButton) {
+      toggleFilterPanelButton.addEventListener("click", () => {
+        filterPanelOpen = !filterPanelOpen;
+        render();
+      });
+    }
 
-      let buttonLabel = t("add");
-      if (alreadySelected) {
-        buttonLabel = t("selected");
-      } else if (hasSameTypeSelected) {
-        buttonLabel = t("replace");
-      }
+    loopLibraryEl.querySelectorAll("[data-filter-style]").forEach(button => {
+      button.addEventListener("click", () => {
+        const styleKey = button.dataset.filterStyle;
 
-      const button = document.createElement("button");
-      button.className = alreadySelected ? "loop-button selected" : "loop-button";
-      button.disabled = alreadySelected;
-      button.innerHTML = `<span><strong>${loop.name}</strong><br><span class="loop-meta">${getElementText(loop.type)}</span></span><span class="loop-meta">${buttonLabel}</span>`;
-      button.addEventListener("click", () => addLoop(loop.id));
-      loopLibraryEl.appendChild(button);
+        if (selectedStyleFilters.includes(styleKey)) {
+          selectedStyleFilters = selectedStyleFilters.filter(existingKey => existingKey !== styleKey);
+        } else {
+          selectedStyleFilters.push(styleKey);
+        }
+
+        if (previewLoopId && !getAvailableLoopsForSelectedElement().some(loop => loop.id === previewLoopId)) {
+          stopPreviewLoop();
+          previewLoopId = null;
+        }
+
+        render();
+      });
     });
-
-    const changeButton = document.createElement("button");
-    changeButton.className = "secondary choose-different-element-button";
-    changeButton.type = "button";
-    changeButton.textContent = t("chooseDifferentElement");
-    changeButton.addEventListener("click", () => {
-      selectedElementFilter = null;
-      selectedStyleFilter = null;
-      render();
-    });
-    loopLibraryEl.appendChild(changeButton);
   }
 
   updateShareLink();
@@ -1607,7 +1679,8 @@ function pickDifferentLoopForPendingContribution() {
   }
 
   selectedElementFilter = pendingContributionElementFilter || (loopToRemove ? loopToRemove.type : null);
-  selectedStyleFilter = pendingContributionStyleFilter;
+  selectedStyleFilter = null;
+  selectedStyleFilters = Array.isArray(pendingContributionStyleFilter) ? pendingContributionStyleFilter.slice() : (pendingContributionStyleFilter ? [pendingContributionStyleFilter] : []);
 
   pendingContributionLoopId = null;
   pendingContributionElementFilter = null;
@@ -1720,7 +1793,11 @@ function setChopSlot(loopId, targetSlotIndex, sourceSliceIndex) {
 function toggleReverseSelectedChop(loopId) {
   const recipe = getChopRecipe(loopId);
 
-  recipe.reverse[selectedChopSlotIndex] = recipe.reverse[selectedChopSlotIndex] !== true;
+  if (!recipe.stutter) {
+    recipe.stutter = {};
+  }
+
+  recipe.stutter[selectedChopSlotIndex] = recipe.stutter[selectedChopSlotIndex] !== true;
 
   setChopRecipe(loopId, recipe);
   refreshPlayingLoopAfterChopEdit(loopId);
@@ -1780,8 +1857,8 @@ function buildChopRowsHtml(loop, recipe, mode) {
         const sourceSliceIndex = recipe.pattern[slotIndex];
         const selectedClass = slotIndex === selectedChopSlotIndex ? " selected" : "";
         const isSilent = recipe.silent && recipe.silent[slotIndex] === true;
-        const reverseText = recipe.reverse && recipe.reverse[slotIndex] === true ? "↩ " : "";
-        const slotText = isSilent ? "X" : `${reverseText}${sourceSliceIndex + 1}`;
+        const stutterText = recipe.stutter && recipe.stutter[slotIndex] === true ? "≋ " : "";
+        const slotText = isSilent ? "X" : `${stutterText}${sourceSliceIndex + 1}`;
 
         buttonsHtml += `
           <button
@@ -1935,6 +2012,26 @@ async function ensureAudioContext() {
   if (!audioContext) {
     audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
+    document.addEventListener(
+      "touchstart",
+      async () => {
+        if (audioContext && audioContext.state === "suspended") {
+          await audioContext.resume();
+        }
+      },
+      { once: true }
+    );
+
+    document.addEventListener(
+      "click",
+      async () => {
+        if (audioContext && audioContext.state === "suspended") {
+          await audioContext.resume();
+        }
+      },
+      { once: true }
+    );
+
     masterGainNode = audioContext.createGain();
     masterGainNode.gain.value = 0.9;
 
@@ -2029,52 +2126,69 @@ function stopLoopSource(loopId) {
   activeGainNodesByLoopId.delete(loopId);
 }
 
-function scheduleChopSlice(active, sourceSliceIndex, playTime, sourceOffset, duration, shouldFadeIn, shouldFadeOut, slotIndexForVisual, isReversed) {
+function scheduleChopSlice(active, sourceSliceIndex, playTime, sourceOffset, duration, shouldFadeIn, shouldFadeOut, slotIndexForVisual, isStutter) {
   if (!active || active.stopped) return;
   if (duration <= 0.005) return;
 
-  const source = audioContext.createBufferSource();
-  const sliceGain = audioContext.createGain();
+  const tinyChunkDuration = active.buffer.duration / 64;
+  const useStutter = isStutter && tinyChunkDuration > 0.005;
+  const repeatDuration = useStutter ? Math.min(tinyChunkDuration, duration) : duration;
+  const repeatCount = useStutter ? Math.ceil(duration / repeatDuration) : 1;
 
-  source.buffer = isReversed ? active.reversedBuffer : active.buffer;
+  for (let repeatIndex = 0; repeatIndex < repeatCount; repeatIndex++) {
+    const segmentStartTime = playTime + (repeatIndex * repeatDuration);
+    const remainingDuration = (playTime + duration) - segmentStartTime;
+    const segmentDuration = Math.min(repeatDuration, remainingDuration);
 
-  const fadeTime = Math.min(0.012, duration * 0.35);
+    if (segmentDuration <= 0.005) continue;
 
-  sliceGain.gain.setValueAtTime(shouldFadeIn ? 0 : 1, playTime);
+    const source = audioContext.createBufferSource();
+    const sliceGain = audioContext.createGain();
 
-  if (shouldFadeIn) {
-    sliceGain.gain.linearRampToValueAtTime(1, playTime + fadeTime);
-  }
+    source.buffer = active.buffer;
 
-  if (shouldFadeOut) {
-    sliceGain.gain.setValueAtTime(1, Math.max(playTime, playTime + duration - fadeTime));
-    sliceGain.gain.linearRampToValueAtTime(0, playTime + duration);
-  }
+    const fadeTime = Math.min(0.006, segmentDuration * 0.35);
+    const fadeThisIn = shouldFadeIn || useStutter;
+    const fadeThisOut = shouldFadeOut || useStutter;
 
-  source.connect(sliceGain);
-  sliceGain.connect(active.gainNode);
+    sliceGain.gain.setValueAtTime(fadeThisIn ? 0 : 1, segmentStartTime);
 
-  try {
-    source.start(playTime, sourceOffset, duration);
+    if (fadeThisIn) {
+      sliceGain.gain.linearRampToValueAtTime(1, segmentStartTime + fadeTime);
+    }
 
-    const delayUntilHeard = Math.max(0, (playTime - audioContext.currentTime) * 1000);
+    if (fadeThisOut) {
+      sliceGain.gain.setValueAtTime(1, Math.max(segmentStartTime, segmentStartTime + segmentDuration - fadeTime));
+      sliceGain.gain.linearRampToValueAtTime(0, segmentStartTime + segmentDuration);
+    }
 
-    setTimeout(() => {
-      if (!active.stopped) {
-        updateChopPlayhead(active.loopId, slotIndexForVisual);
+    source.connect(sliceGain);
+    sliceGain.connect(active.gainNode);
+
+    try {
+      source.start(segmentStartTime, sourceOffset, segmentDuration);
+
+      if (repeatIndex === 0) {
+        const delayUntilHeard = Math.max(0, (segmentStartTime - audioContext.currentTime) * 1000);
+
+        setTimeout(() => {
+          if (!active.stopped) {
+            updateChopPlayhead(active.loopId, slotIndexForVisual);
+          }
+        }, delayUntilHeard);
       }
-    }, delayUntilHeard);
 
-  } catch (err) {
-    console.warn("Could not schedule chop slice", err);
-    return;
+    } catch (err) {
+      console.warn("Could not schedule chop slice", err);
+      return;
+    }
+
+    active.sources.push(source);
+
+    source.onended = () => {
+      active.sources = active.sources.filter(item => item !== source);
+    };
   }
-
-  active.sources.push(source);
-
-  source.onended = () => {
-    active.sources = active.sources.filter(item => item !== source);
-  };
 }
 
 function scheduleChopPlayheadOnly(active, playTime, slotIndexForVisual) {
@@ -2106,11 +2220,9 @@ function runChopScheduler(active) {
     continue;
   }
 
-  const isReversed = active.recipe.reverse && active.recipe.reverse[active.nextSlotIndex] === true;
+  const isStutter = active.recipe.stutter && active.recipe.stutter[active.nextSlotIndex] === true;
 
-    const sourceOffset = isReversed
-      ? active.buffer.duration - ((sourceSliceIndex + 1) * active.sliceDuration)
-      : sourceSliceIndex * active.sliceDuration;
+    const sourceOffset = sourceSliceIndex * active.sliceDuration;
 
     const previousSlotIndex = (active.nextSlotIndex - 1 + active.recipe.slices) % active.recipe.slices;
     const nextSlotIndex = (active.nextSlotIndex + 1) % active.recipe.slices;
@@ -2130,7 +2242,7 @@ function runChopScheduler(active) {
       !naturalFromPrevious,
       !naturalToNext,
       slotIndexForVisual,
-      isReversed
+      isStutter
     );
 
     active.nextSlotTime += active.sliceDuration;
@@ -2150,7 +2262,6 @@ function startChoppedLoopSource(loopId, buffer, gainNode, actualStartTime) {
     loopId: loopId,
     type: "chopped",
     buffer: buffer,
-    reversedBuffer: getReversedBuffer(loopId, buffer),
     gainNode: gainNode,
     recipe: recipe,
     sliceDuration: sliceDuration,
@@ -2161,12 +2272,10 @@ function startChoppedLoopSource(loopId, buffer, gainNode, actualStartTime) {
   };
 
   const firstSourceSliceIndex = recipe.pattern[startSlotIndex];
-  const firstIsReversed = recipe.reverse && recipe.reverse[startSlotIndex] === true;
+  const firstIsStutter = recipe.stutter && recipe.stutter[startSlotIndex] === true;
   const firstIsSilent = recipe.silent && recipe.silent[startSlotIndex] === true;
 
-  const firstSourceOffset = firstIsReversed
-    ? buffer.duration - ((firstSourceSliceIndex + 1) * sliceDuration) + offsetInsideSlot
-    : (firstSourceSliceIndex * sliceDuration) + offsetInsideSlot;
+  const firstSourceOffset = (firstSourceSliceIndex * sliceDuration) + offsetInsideSlot;
   const firstDuration = sliceDuration - offsetInsideSlot;
 
   const previousSlotIndex = (startSlotIndex - 1 + recipe.slices) % recipe.slices;
@@ -2190,7 +2299,7 @@ function startChoppedLoopSource(loopId, buffer, gainNode, actualStartTime) {
       !naturalFromPrevious,
       !naturalToNext,
       startSlotIndex,
-      firstIsReversed
+      firstIsStutter
     );
   }
 
@@ -2269,6 +2378,9 @@ async function startAllLoopSources() {
 }
 
 function pauseBeat() {
+  stopPreviewLoop();
+  previewLoopId = null;
+
   if (!isPlaying || !audioContext) return;
 
   const firstLoopId = beat.loops[0];
@@ -2316,6 +2428,9 @@ function pauseBeat() {
 }
 
 function stopBeat() {
+  stopPreviewLoop();
+  previewLoopId = null;
+
   activeSourcesByLoopId.forEach((active, loopId) => {
     active.stopped = true;
 
@@ -2354,6 +2469,89 @@ function stopBeat() {
   playButton.textContent = t("play");
 }
 
+function stopPreviewLoop() {
+  if (activePreviewSource) {
+    try {
+      activePreviewSource.stop();
+    } catch (err) {}
+  }
+
+  activePreviewSource = null;
+  activePreviewGainNode = null;
+}
+
+async function previewLoop(loopId) {
+
+  if (previewLoopId === loopId) {
+    stopPreviewLoop();
+    previewLoopId = null;
+    render();
+    return;
+  }
+
+  const loop = getLoopById(loopId);
+  if (!loop) return;
+
+  // Update the UI immediately so the button glows even while audio loads.
+  previewLoopId = loopId;
+  render();
+
+  try {
+    await ensureAudioContext();
+
+    stopPreviewLoop();
+
+    if (beat.loops.length > 0 && !isPlaying) {
+      await startAllLoopSources();
+    }
+
+    const buffer = await loadBuffer(loop);
+    const source = audioContext.createBufferSource();
+    const gainNode = audioContext.createGain();
+
+    gainNode.gain.value = loop.gain * getLoopVolume(loop.id);
+    gainNode.connect(masterGainNode);
+
+    source.buffer = buffer;
+    source.loop = true;
+    source.connect(gainNode);
+
+    const startTime = audioContext.currentTime + 0.08;
+    let offset = 0;
+
+    if (isPlaying) {
+      offset = getOffsetAtTime(buffer.duration, startTime);
+    } else {
+      transportStartTime = startTime;
+      pausedOffset = 0;
+    }
+
+    source.start(startTime, offset);
+
+    activePreviewSource = source;
+    activePreviewGainNode = gainNode;
+
+    source.onended = () => {
+      if (activePreviewSource === source) {
+        activePreviewSource = null;
+        activePreviewGainNode = null;
+      }
+    };
+  } catch (err) {
+    console.warn("Could not preview loop", err);
+  }
+}
+
+async function confirmPreviewLoop() {
+  if (!previewLoopId) return;
+
+  const loopIdToAdd = previewLoopId;
+  stopPreviewLoop();
+  previewLoopId = null;
+
+  await addLoop(loopIdToAdd);
+}
+
 async function playBeat() {
   await ensureAudioContext();
 
@@ -2374,7 +2572,7 @@ async function addLoop(loopId) {
   let replacedLoopId = null;
   const wasEmptyBeat = beat.loops.length === 0;
   const chosenElementFilter = selectedElementFilter || newLoop.type;
-  const chosenStyleFilter = selectedStyleFilter;
+  const chosenStyleFilter = selectedStyleFilters.slice();
 
   const existingIndex = isSingleUseElement(newLoop.type)
     ? beat.loops.findIndex(existingLoopId => {
@@ -2449,6 +2647,9 @@ if (!contributorName || contributorName.trim() === "") {
 
   selectedElementFilter = null;
   selectedStyleFilter = null;
+  selectedStyleFilters = [];
+  previewLoopId = null;
+  filterPanelOpen = false;
 
   render();
   openChopEditor(newLoop.id);
@@ -2539,6 +2740,9 @@ function newBeat() {
   selectedChopSlotIndex = 0;
   selectedElementFilter = null;
   selectedStyleFilter = null;
+  selectedStyleFilters = [];
+  previewLoopId = null;
+  filterPanelOpen = false;
   hasAutoScrolledToPlayer = false;
 
   render();
