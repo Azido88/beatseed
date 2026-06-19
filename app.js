@@ -296,6 +296,7 @@ let selectedElementFilter = null;
 let selectedStyleFilter = null;
 let selectedStyleFilters = [];
 let previewLoopId = null;
+let previewLoopVolume = 1.0;
 let filterPanelOpen = false;
 let currentProducerName = localStorage.getItem(PRODUCER_NAME_KEY) || "";
 let producerNameDecisionMade = false;
@@ -1524,6 +1525,18 @@ function render() {
           </button>
         </div>
 
+        <div class="preview-volume-control ${previewLoopData ? "" : "hidden"}">
+          <span class="loop-meta">${t("vol")}</span>
+          <input
+            id="previewVolumeSlider"
+            class="volume-slider"
+            type="range"
+            min="0"
+            max="150"
+            value="${Math.round(previewLoopVolume * 100)}">
+          <span id="previewVolumeReadout" class="volume-readout">${Math.round(previewLoopVolume * 100)}%</span>
+        </div>
+
         <div class="filter-panel ${filterPanelOpen ? "" : "hidden"}">
           <p class="loop-meta">${selectedStyleFilters.length === 0 ? t("noFiltersActive") : selectedStyleFilters.map(getStyleText).join(" / ")}</p>
           <div class="filter-chip-grid">
@@ -1541,6 +1554,24 @@ function render() {
     if (pickPreviewLoopButton) {
       pickPreviewLoopButton.addEventListener("click", confirmPreviewLoop);
     }
+
+  const previewVolumeSlider = document.getElementById("previewVolumeSlider");
+  const previewVolumeReadout = document.getElementById("previewVolumeReadout");
+
+  if (previewVolumeSlider && previewVolumeReadout) {
+    previewVolumeSlider.addEventListener("input", () => {
+      previewLoopVolume = Number(previewVolumeSlider.value) / 100;
+      previewVolumeReadout.textContent = `${previewVolumeSlider.value}%`;
+
+      if (activePreviewGainNode && previewLoopId) {
+        const loop = getLoopById(previewLoopId);
+
+        if (loop) {
+          activePreviewGainNode.gain.value = loop.gain * previewLoopVolume;
+        }
+      }
+    });
+  }   
 
     const toggleFilterPanelButton = document.getElementById("toggleFilterPanelButton");
     if (toggleFilterPanelButton) {
@@ -2492,6 +2523,8 @@ async function previewLoop(loopId) {
   const loop = getLoopById(loopId);
   if (!loop) return;
 
+  previewLoopVolume = getLoopVolume(loop.id);
+
   // Update the UI immediately so the button glows even while audio loads.
   previewLoopId = loopId;
   render();
@@ -2509,7 +2542,7 @@ async function previewLoop(loopId) {
     const source = audioContext.createBufferSource();
     const gainNode = audioContext.createGain();
 
-    gainNode.gain.value = loop.gain * getLoopVolume(loop.id);
+    gainNode.gain.value = loop.gain * previewLoopVolume;
     gainNode.connect(masterGainNode);
 
     source.buffer = buffer;
@@ -2548,6 +2581,8 @@ async function confirmPreviewLoop() {
   const loopIdToAdd = previewLoopId;
   stopPreviewLoop();
   previewLoopId = null;
+
+  beat.volumes[loopIdToAdd] = previewLoopVolume;
 
   await addLoop(loopIdToAdd);
 }
