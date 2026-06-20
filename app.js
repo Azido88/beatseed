@@ -95,7 +95,51 @@ const TEXT = {
     hideFilters: "Hide Filters",
     previewing: "Previewing",
     noFiltersActive: "All styles",
-    shareLatestUpdate: "Share Latest Update"
+    shareLatestUpdate: "Share Latest Update",
+    creatingShareLink: "Creating share link...",
+    shareLinkFailed: "Could not create short link. Copied backup link instead.",
+    audioHelpToast: "No sound? Check your phone volume or silent mode.",
+    editPermissionWarning: "Only the original creator can replace or remove this sound. You can still remix it.",
+    createdBy: "Created by",
+    lastEditedBy: "Last edited by",
+    restoreOriginal: "Restore Original",
+    restoreLatestEdit: "Restore Latest Edit",
+    originalRestored: "Original restored",
+    latestEditRestored: "Latest edit restored",
+    exportTitle: "Done with this beat?",
+    exportText: "Export your finished beat or keep collaborating.",
+    exportLength: "Length",
+    exportLengthShort: "Short",
+    exportLengthShortTime: "~40 sec",
+    exportLengthMedium: "Medium",
+    exportLengthMediumTime: "~1 min 20 sec",
+    exportLengthLong: "Long",
+    exportLengthLongTime: "~2 min 40 sec",
+    exportMp3: "Export as WAV",
+    downloadWav: "Download WAV",
+    exportStems: "Export individual stems",
+    exportVideo: "Export to video",
+    comingSoon: "Coming soon",
+    exportComingSoon: "Export features are coming soon.",
+    exportPreparing: "Preparing WAV export...",
+    exportFailed: "Could not export WAV.",
+    chooseDifferentSound: "Choose Different Sound",
+    faqButton: "FAQ",
+    faqTitle: "FAQ",
+    faqWhatIsQuestion: "What is BeatSeed?",
+    faqWhatIsAnswer: "BeatSeed is a collaborative music toy. Add one sound, send it to a friend, and build a beat together.",
+    faqWhoMadeQuestion: "Who made BeatSeed?",
+    faqWhoMadeAnswer: "BeatSeed was created by Azido Games, the developer of Stellar Rhythm.",
+    faqCommercialQuestion: "Can I use these sounds in my own music or videos?",
+    faqCommercialAnswer: "Yes. All sounds in BeatSeed are royalty-free and may be used in your own creations without attribution.",
+    faqAiQuestion: "Are the sounds AI-generated?",
+    faqAiAnswer: "No. All loops are created and curated by real human producers and musicians.",
+    faqMoreQuestion: "Will more sounds be added?",
+    faqMoreAnswer: "Yes. New sounds and improvements will be added over time.",
+    shareLatestUpdate: "Share Latest Update",
+    audioHelpMessage: "No sound? Check your phone volume or silent mode.",
+    editPermissionWarning: "Only the original creator can replace or remove this sound. You can still remix it.",
+    stutterSelected: "Stutter Selected"
   },
 
   zhTW: {
@@ -187,7 +231,51 @@ const TEXT = {
     hideFilters: "隱藏篩選",
     previewing: "預覽中",
     noFiltersActive: "所有風格",
-    shareLatestUpdate: "分享最新版本"
+    shareLatestUpdate: "分享最新版本",
+    creatingShareLink: "正在建立分享連結...",
+    shareLinkFailed: "無法建立短連結，已改為複製備用連結。",
+    audioHelpToast: "沒有聲音？請檢查手機音量或靜音模式。",
+    editPermissionWarning: "只有原作者可以更換或移除此聲音。你仍然可以重新編排它。",
+    createdBy: "建立者",
+    lastEditedBy: "最後編輯者",
+    restoreOriginal: "還原原作者版本",
+    restoreLatestEdit: "還原最新編輯",
+    originalRestored: "已還原原作者版本",
+    latestEditRestored: "已還原最新編輯",
+    exportTitle: "這首節拍完成了嗎？",
+    exportText: "匯出完成的節拍，或繼續和朋友一起創作。",
+    exportLength: "長度",
+    exportLengthShort: "短",
+    exportLengthShortTime: "約 40 秒",
+    exportLengthMedium: "中",
+    exportLengthMediumTime: "約 1 分 20 秒",
+    exportLengthLong: "長",
+    exportLengthLongTime: "約 2 分 40 秒",
+    exportMp3: "匯出為 WAV",
+    downloadWav: "下載 WAV",
+    exportStems: "匯出各個分軌",
+    exportVideo: "匯出成影片",
+    comingSoon: "即將推出",
+    exportComingSoon: "匯出功能即將推出。",
+    exportPreparing: "正在準備 WAV 匯出...",
+    exportFailed: "無法匯出 WAV。",
+    chooseDifferentSound: "選擇不同聲音",
+    faqButton: "FAQ",
+    faqTitle: "常見問題",
+    faqWhatIsQuestion: "什麼是 BeatSeed？",
+    faqWhatIsAnswer: "BeatSeed 是一個合作創作音樂的小工具。加入一個聲音、傳給朋友，一起完成一首節拍。",
+    faqWhoMadeQuestion: "誰製作了 BeatSeed？",
+    faqWhoMadeAnswer: "BeatSeed 由 Azido Games 製作，也就是 Stellar Rhythm 的開發者。",
+    faqCommercialQuestion: "我可以在自己的作品中使用這些聲音嗎？",
+    faqCommercialAnswer: "可以。BeatSeed 中所有聲音皆為免版稅素材，可自由使用於你的作品中，無需標註來源。",
+    faqAiQuestion: "這些聲音是 AI 生成的嗎？",
+    faqAiAnswer: "不是。所有 Loop 都是由真實的人類音樂製作人與樂手創作及挑選。",
+    faqMoreQuestion: "未來會加入更多聲音嗎？",
+    faqMoreAnswer: "會。未來將持續新增更多聲音與功能改進。",
+    shareLatestUpdate: "分享最新版本",
+    audioHelpMessage: "沒有聲音？請檢查手機音量或靜音模式。",
+    editPermissionWarning: "只有原作者可以更換或移除此聲音。你仍然可以重新編排它。",
+    stutterSelected: "重複所選切片"
   }
 };
 
@@ -271,6 +359,15 @@ const PRODUCER_NAME_KEY = "beatseed_producer_name";
 const MAX_LAYERS = 8;
 const DEFAULT_CHOP_SLICES = 8;
 
+// Supabase short-link storage.
+// This publishable key is safe to use in frontend JavaScript because Row Level Security is enabled.
+const SUPABASE_URL = "https://dkumaaqpzxdaphkiunmm.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_G5IPJfIaubHl8hV1404Njg_2hgmIidj";
+const SUPABASE_BEATS_TABLE = "beats";
+const BEAT_ID_LENGTH = 7;
+const BEAT_ID_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+const SHORT_LINK_CACHE_KEY = "beatseed_short_link_cache_v1";
+
 let audioContext = null;
 let analyserNode = null;
 let masterGainNode = null;
@@ -306,8 +403,147 @@ let pendingContributionLoopId = null;
 let pendingContributionElementFilter = null;
 let pendingContributionStyleFilter = null;
 let currentUserContributionType = null;
+let audioHelpToastTimer = null;
+let editWarningToastTimer = null;
 
 let chopEditorPlayheadAnimation = null;
+
+let faqOpen = false;
+let exportLengthMode = "medium";
+let exportWavOptionsOpen = false;
+
+function buildFaqHtml() {
+  return `
+    <div class="faq-content">
+      <h2>${t("faqTitle")}</h2>
+
+      <div class="faq-item">
+        <h3>${t("faqWhatIsQuestion")}</h3>
+        <p>${t("faqWhatIsAnswer")}</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>${t("faqWhoMadeQuestion")}</h3>
+        <p>${t("faqWhoMadeAnswer")}</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>${t("faqCommercialQuestion")}</h3>
+        <p>${t("faqCommercialAnswer")}</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>${t("faqAiQuestion")}</h3>
+        <p>${t("faqAiAnswer")}</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>${t("faqMoreQuestion")}</h3>
+        <p>${t("faqMoreAnswer")}</p>
+      </div>
+    </div>
+  `;
+}
+
+function renderFaqPanel() {
+  if (!faqPanel) return;
+
+  faqPanel.classList.toggle("hidden", !faqOpen);
+  faqPanel.innerHTML = faqOpen ? buildFaqHtml() : "";
+}
+
+function toggleFaq() {
+  faqOpen = !faqOpen;
+  renderFaqPanel();
+}
+
+function buildExportPanelHtml() {
+  const lengthOptions = [
+    { key: "short", labelKey: "exportLengthShort", timeKey: "exportLengthShortTime" },
+    { key: "medium", labelKey: "exportLengthMedium", timeKey: "exportLengthMediumTime" },
+    { key: "long", labelKey: "exportLengthLong", timeKey: "exportLengthLongTime" }
+  ];
+
+  const lengthButtonsHtml = lengthOptions.map(option => `
+    <button
+      class="export-length-btn ${exportLengthMode === option.key ? "active" : ""}"
+      data-export-length="${option.key}"
+      type="button">
+      ${t(option.labelKey)}
+      <span class="export-length-sub">${t(option.timeKey)}</span>
+    </button>
+  `).join("");
+
+  return `
+    <div class="export-content">
+      <div class="guide-header compact-guide-header">
+        <h2>${t("exportTitle")}</h2>
+        <p class="guide-copy">${t("exportText")}</p>
+      </div>
+
+      <div class="export-actions">
+        <button class="export-placeholder-button ${exportWavOptionsOpen ? "selected" : ""}" data-export-action="wav-options" type="button">${t("exportMp3")}</button>
+        <button class="secondary export-disabled-button" data-export-action="stems" type="button" aria-disabled="true">
+          ${t("exportStems")} <span>${t("comingSoon")}</span>
+        </button>
+        <button class="secondary export-disabled-button" data-export-action="video" type="button" aria-disabled="true">
+          ${t("exportVideo")} <span>${t("comingSoon")}</span>
+        </button>
+      </div>
+
+      <div class="export-length-panel ${exportWavOptionsOpen ? "" : "hidden"}">
+        <p class="label">${t("exportLength")}</p>
+        <div class="export-length-options">
+          ${lengthButtonsHtml}
+        </div>
+        <button class="export-download-button" data-export-action="wav-download" type="button">${t("downloadWav")}</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderExportPanel() {
+  if (!exportPanelEl) return;
+
+  const shouldShowExportPanel =
+    beat.loops.length >= 3 &&
+    !pendingContributionLoopId;
+
+  exportPanelEl.classList.toggle("hidden", !shouldShowExportPanel);
+
+  if (!shouldShowExportPanel) {
+    exportPanelEl.innerHTML = "";
+    return;
+  }
+
+  exportPanelEl.innerHTML = buildExportPanelHtml();
+
+  exportPanelEl.querySelectorAll("[data-export-length]").forEach(button => {
+    button.addEventListener("click", () => {
+      exportLengthMode = button.dataset.exportLength || "medium";
+      renderExportPanel();
+    });
+  });
+
+  exportPanelEl.querySelectorAll("[data-export-action]").forEach(button => {
+    button.addEventListener("click", async () => {
+      const exportAction = button.dataset.exportAction;
+
+      if (exportAction === "wav-options") {
+        exportWavOptionsOpen = !exportWavOptionsOpen;
+        renderExportPanel();
+        return;
+      }
+
+      if (exportAction === "wav-download") {
+        await exportBeatAsWav();
+        return;
+      }
+
+      showTemporaryToast(t("exportComingSoon"), "edit-warning-toast");
+    });
+  });
+}
 
 let beat = {
   name: "Untitled Beat",
@@ -315,7 +551,12 @@ let beat = {
   volumes: {},
   chops: {},
   startedBy: "",
-  contributors: {}
+  contributors: {},
+  loopCreators: {},
+  lastEditors: {},
+  originalStates: {},
+  latestEditedStates: {},
+  restoredOriginalLoops: {}
 };
 
 const beatNameEl = document.getElementById("beatName");
@@ -331,6 +572,9 @@ const onboardingPanelEl = document.getElementById("onboardingPanel");
 const playerCardEl = document.querySelector(".player-card");
 const libraryCardEl = document.querySelector(".library-card");
 const shareCardEl = document.querySelector(".share-card");
+const exportPanelEl = document.getElementById("exportPanel");
+const faqButton = document.getElementById("faqButton");
+const faqPanel = document.getElementById("faqPanel");
 const SAVED_BEATS_KEY = "beatseed_saved_beats_v1";
 
 let chopEditorEl = document.getElementById("chopEditor");
@@ -342,11 +586,180 @@ if (!chopEditorEl) {
 }
 
 function safeEncode(data) {
-  return btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+  return LZString.compressToEncodedURIComponent(
+    JSON.stringify(data)
+  );
 }
 
 function safeDecode(text) {
-  return JSON.parse(decodeURIComponent(escape(atob(text))));
+  try {
+    const decompressed = LZString.decompressFromEncodedURIComponent(text);
+
+    if (decompressed) {
+      return JSON.parse(decompressed);
+    }
+  } catch (error) {}
+
+  // Backward compatibility for old pre-compression BeatSeed links.
+  return JSON.parse(
+    decodeURIComponent(
+      escape(atob(text))
+    )
+  );
+}
+
+function getSupabaseHeaders() {
+  return {
+    apikey: SUPABASE_PUBLISHABLE_KEY,
+    Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
+    "Content-Type": "application/json"
+  };
+}
+
+function makeShortBeatId() {
+  let id = "";
+
+  for (let i = 0; i < BEAT_ID_LENGTH; i++) {
+    id += BEAT_ID_CHARS[Math.floor(Math.random() * BEAT_ID_CHARS.length)];
+  }
+
+  return id;
+}
+
+function getBeatFingerprint(data) {
+  const text = JSON.stringify(data);
+  let hash = 5381;
+
+  for (let i = 0; i < text.length; i++) {
+    hash = ((hash << 5) + hash) ^ text.charCodeAt(i);
+  }
+
+  return `b${(hash >>> 0).toString(36)}_${text.length}`;
+}
+
+function getShortLinkCache() {
+  try {
+    const cache = JSON.parse(localStorage.getItem(SHORT_LINK_CACHE_KEY));
+    return cache && typeof cache === "object" ? cache : {};
+  } catch (err) {
+    return {};
+  }
+}
+
+function setShortLinkCacheValue(fingerprint, beatId) {
+  try {
+    const cache = getShortLinkCache();
+    cache[fingerprint] = beatId;
+    localStorage.setItem(SHORT_LINK_CACHE_KEY, JSON.stringify(cache));
+  } catch (err) {}
+}
+
+function getShortLinkCacheValue(fingerprint) {
+  const cache = getShortLinkCache();
+  return cache[fingerprint] || "";
+}
+
+function buildShortShareUrl(beatId) {
+  const url = new URL(window.location.href);
+  url.searchParams.set("b", beatId);
+  url.hash = "";
+  return url.toString();
+}
+
+function buildBackupShareUrl() {
+  const url = new URL(window.location.href);
+
+  if (beat.loops.length > 0) {
+    url.searchParams.delete("b");
+    url.hash = "beat=" + safeEncode(beat);
+  } else {
+    url.searchParams.delete("b");
+    url.hash = "";
+  }
+
+  return url.toString();
+}
+
+async function saveBeatToSupabase(beatData) {
+  const fingerprint = getBeatFingerprint(beatData);
+  const cachedId = getShortLinkCacheValue(fingerprint);
+
+  if (cachedId) {
+    return cachedId;
+  }
+
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const beatId = makeShortBeatId();
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/${SUPABASE_BEATS_TABLE}`, {
+      method: "POST",
+      headers: {
+        ...getSupabaseHeaders(),
+        Prefer: "return=minimal"
+      },
+      body: JSON.stringify({
+        id: beatId,
+        beat_data: beatData
+      })
+    });
+
+    if (response.ok) {
+      setShortLinkCacheValue(fingerprint, beatId);
+      return beatId;
+    }
+
+    // 409 usually means the random ID already exists. Try another one.
+    if (response.status !== 409) {
+      const errorText = await response.text();
+      throw new Error(errorText || `Supabase save failed with status ${response.status}`);
+    }
+  }
+
+  throw new Error("Could not create a unique BeatSeed short link.");
+}
+
+async function loadBeatFromSupabase(beatId) {
+  const response = await fetch(
+    `${SUPABASE_URL}/rest/v1/${SUPABASE_BEATS_TABLE}?id=eq.${encodeURIComponent(beatId)}&select=beat_data`,
+    {
+      method: "GET",
+      headers: getSupabaseHeaders()
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Supabase load failed with status ${response.status}`);
+  }
+
+  const rows = await response.json();
+
+  if (!Array.isArray(rows) || rows.length === 0 || !rows[0].beat_data) {
+    throw new Error("BeatSeed link not found.");
+  }
+
+  setShortLinkCacheValue(getBeatFingerprint(rows[0].beat_data), beatId);
+  return rows[0].beat_data;
+}
+
+async function getOrCreateShortShareUrl() {
+  ensureBeatDataObjects();
+
+  if (beat.loops.length === 0) {
+    return buildBackupShareUrl();
+  }
+
+  const beatData = clonePlainObject(beat);
+  const beatId = await saveBeatToSupabase(beatData);
+  const shortUrl = buildShortShareUrl(beatId);
+
+  shareLinkEl.value = shortUrl;
+  history.replaceState(null, "", shortUrl);
+
+  const guideInviteInput = document.getElementById("guideInviteLink");
+  if (guideInviteInput) {
+    guideInviteInput.value = shortUrl;
+  }
+
+  return shortUrl;
 }
 
 function getLoopById(loopId) {
@@ -363,7 +776,29 @@ function ensureBeatDataObjects() {
   if (!beat.volumes) beat.volumes = {};
   if (!beat.chops) beat.chops = {};
   if (!beat.contributors) beat.contributors = {};
+  if (!beat.loopCreators) beat.loopCreators = {};
+  if (!beat.lastEditors) beat.lastEditors = {};
+  if (!beat.originalStates) beat.originalStates = {};
+  if (!beat.latestEditedStates) beat.latestEditedStates = {};
+  if (!beat.restoredOriginalLoops) beat.restoredOriginalLoops = {};
   if (!beat.startedBy) beat.startedBy = "";
+
+  // Backward compatibility for older shared links.
+  beat.loops.forEach(loopId => {
+    const loop = getLoopById(loopId);
+    if (!loop) return;
+
+    if (!beat.loopCreators[loopId]) {
+      const oldCreator = beat.contributors[loopId] || beat.contributors[loop.type] || "";
+      if (oldCreator) {
+        beat.loopCreators[loopId] = oldCreator;
+      }
+    }
+
+    if (!beat.lastEditors[loopId] && beat.loopCreators[loopId]) {
+      beat.lastEditors[loopId] = beat.loopCreators[loopId];
+    }
+  });
 }
 
 function getLoopVolume(loopId) {
@@ -380,6 +815,10 @@ function setLoopVolume(loopId, volumeValue) {
   ensureBeatDataObjects();
 
   beat.volumes[loopId] = Math.max(0, Math.min(1.5, volumeValue));
+
+  if (beat.restoredOriginalLoops) {
+    beat.restoredOriginalLoops[loopId] = false;
+  }
 
   const gainNode = activeGainNodesByLoopId.get(loopId);
   const loop = getLoopById(loopId);
@@ -464,6 +903,10 @@ function setChopRecipe(loopId, recipe) {
     stutter: recipe.stutter || recipe.reverse || {},
     silent: recipe.silent || {}
   };
+
+  if (beat.restoredOriginalLoops) {
+    beat.restoredOriginalLoops[loopId] = false;
+  }
 
   updateShareLink();
 }
@@ -714,47 +1157,69 @@ function animateVisualizer() {
   }
 }
 
-function loadBeatFromUrl() {
+async function loadBeatFromUrl() {
+  const currentUrl = new URL(window.location.href);
+  const shortBeatId = currentUrl.searchParams.get("b");
+
+  if (shortBeatId) {
+    try {
+      const incoming = await loadBeatFromSupabase(shortBeatId);
+      applyIncomingBeatData(incoming);
+      return;
+    } catch (err) {
+      console.warn("Could not load BeatSeed short link", err);
+    }
+  }
+
   const hash = window.location.hash.replace(/^#beat=/, "");
   if (!hash) return;
 
   try {
     const incoming = safeDecode(hash);
-    if (incoming && Array.isArray(incoming.loops)) {
-      const cleanedLoops = [];
-
-      incoming.loops.forEach(loopId => {
-        const incomingLoop = getLoopById(loopId);
-        if (!incomingLoop) return;
-
-        const existingIndex = isSingleUseElement(incomingLoop.type)
-          ? cleanedLoops.findIndex(existingId => {
-              const existingLoop = getLoopById(existingId);
-              return existingLoop && existingLoop.type === incomingLoop.type;
-            })
-          : -1;
-
-        if (existingIndex >= 0) {
-          cleanedLoops[existingIndex] = incomingLoop.id;
-        } else if (cleanedLoops.length < MAX_LAYERS) {
-          cleanedLoops.push(incomingLoop.id);
-        }
-      });
-
-      loadedFromShareLink = cleanedLoops.length > 0;
-
-      beat = {
-        name: incoming.name || t("friendBeat"),
-        loops: cleanedLoops,
-        volumes: incoming.volumes || {},
-        chops: incoming.chops || {},
-        startedBy: incoming.startedBy || "",
-        contributors: incoming.contributors || {}
-      };
-    }
+    applyIncomingBeatData(incoming);
   } catch (err) {
     console.warn("Could not read beat from URL", err);
   }
+}
+
+function applyIncomingBeatData(incoming) {
+  if (!incoming || !Array.isArray(incoming.loops)) return;
+
+  const cleanedLoops = [];
+
+  incoming.loops.forEach(loopId => {
+    const incomingLoop = getLoopById(loopId);
+    if (!incomingLoop) return;
+
+    const existingIndex = isSingleUseElement(incomingLoop.type)
+      ? cleanedLoops.findIndex(existingId => {
+          const existingLoop = getLoopById(existingId);
+          return existingLoop && existingLoop.type === incomingLoop.type;
+        })
+      : -1;
+
+    if (existingIndex >= 0) {
+      cleanedLoops[existingIndex] = incomingLoop.id;
+    } else if (cleanedLoops.length < MAX_LAYERS) {
+      cleanedLoops.push(incomingLoop.id);
+    }
+  });
+
+  loadedFromShareLink = cleanedLoops.length > 0;
+
+  beat = {
+    name: incoming.name || t("friendBeat"),
+    loops: cleanedLoops,
+    volumes: incoming.volumes || {},
+    chops: incoming.chops || {},
+    startedBy: incoming.startedBy || "",
+    contributors: incoming.contributors || {},
+    loopCreators: incoming.loopCreators || {},
+    lastEditors: incoming.lastEditors || {},
+    originalStates: incoming.originalStates || {},
+    latestEditedStates: incoming.latestEditedStates || {},
+    restoredOriginalLoops: incoming.restoredOriginalLoops || {}
+  };
 
   ensureBeatDataObjects();
   pendingContributionLoopId = null;
@@ -861,7 +1326,11 @@ function renderSavedBeats() {
     savedBeatsEl = document.createElement("div");
     savedBeatsEl.id = "savedBeats";
     savedBeatsEl.className = "saved-beats";
-    shareLinkEl.parentElement.parentElement.insertAdjacentElement("afterend", savedBeatsEl);
+    if (exportPanelEl) {
+      exportPanelEl.insertAdjacentElement("afterend", savedBeatsEl);
+    } else {
+      shareLinkEl.parentElement.parentElement.insertAdjacentElement("afterend", savedBeatsEl);
+    }
   }
 
   const savedBeats = getSavedBeats();
@@ -978,6 +1447,161 @@ function getLoopContributor(loopId) {
   return "";
 }
 
+
+function getLoopCreator(loopId) {
+  ensureBeatDataObjects();
+
+  const loop = getLoopById(loopId);
+  if (!loop) return "";
+
+  return beat.loopCreators[loopId]
+    || beat.contributors[loopId]
+    || beat.contributors[loop.type]
+    || "";
+}
+
+function getLoopLastEditor(loopId) {
+  ensureBeatDataObjects();
+
+  return beat.lastEditors[loopId] || getLoopCreator(loopId) || "";
+}
+
+function currentUserIsLoopCreator(loopId) {
+  const creatorName = getLoopCreator(loopId);
+  return creatorName !== "" && creatorName === getDisplayProducerName();
+}
+
+function canCurrentUserRemoveLoop(loopId) {
+  return currentUserIsLoopCreator(loopId);
+}
+
+function canCurrentUserReplaceLoop(loopId) {
+  return currentUserIsLoopCreator(loopId);
+}
+
+function clonePlainObject(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
+function snapshotCurrentLoopState(loopId) {
+  return {
+    volume: getLoopVolume(loopId),
+    chop: clonePlainObject(getChopRecipe(loopId)),
+    savedBy: getLoopLastEditor(loopId) || getDisplayProducerName()
+  };
+}
+
+function saveCreatorOriginalState(loopId) {
+  ensureBeatDataObjects();
+
+  if (!currentUserIsLoopCreator(loopId)) return;
+
+  beat.originalStates[loopId] = snapshotCurrentLoopState(loopId);
+}
+
+async function restoreOriginalLoopState(loopId) {
+  ensureBeatDataObjects();
+
+  if (!currentUserIsLoopCreator(loopId)) {
+    showEditPermissionWarning();
+    return;
+  }
+
+  const isCurrentlyOriginal = beat.restoredOriginalLoops && beat.restoredOriginalLoops[loopId] === true;
+  const originalState = beat.originalStates ? beat.originalStates[loopId] : null;
+  const latestEditedState = beat.latestEditedStates ? beat.latestEditedStates[loopId] : null;
+
+  if (isCurrentlyOriginal) {
+    if (!latestEditedState) return;
+
+    beat.volumes[loopId] = Math.max(0, Math.min(1.5, Number(latestEditedState.volume) || 1));
+    beat.chops[loopId] = clonePlainObject(latestEditedState.chop);
+    beat.lastEditors[loopId] = latestEditedState.savedBy || getDisplayProducerName();
+    beat.restoredOriginalLoops[loopId] = false;
+
+    updateShareLink();
+
+    if (isPlaying) {
+      await startLoopSource(loopId);
+    }
+
+    render();
+    showTemporaryToast(t("latestEditRestored"), "edit-warning-toast");
+    return;
+  }
+
+  if (!originalState) return;
+
+  beat.latestEditedStates[loopId] = snapshotCurrentLoopState(loopId);
+
+  beat.volumes[loopId] = Math.max(0, Math.min(1.5, Number(originalState.volume) || 1));
+  beat.chops[loopId] = clonePlainObject(originalState.chop);
+  beat.lastEditors[loopId] = getLoopCreator(loopId) || getDisplayProducerName();
+  beat.restoredOriginalLoops[loopId] = true;
+
+  updateShareLink();
+
+  if (isPlaying) {
+    await startLoopSource(loopId);
+  }
+
+  render();
+  showTemporaryToast(t("originalRestored"), "edit-warning-toast");
+}
+
+function showTemporaryToast(message, className = "audio-help-toast") {
+  const existing = document.querySelector(`.${className}`);
+  if (existing) {
+    existing.remove();
+  }
+
+  const toast = document.createElement("div");
+  toast.className = className;
+  toast.textContent = message;
+
+  document.body.appendChild(toast);
+
+  const timerName = className === "audio-help-toast" ? "audioHelpToastTimer" : "editWarningToastTimer";
+
+  if (timerName === "audioHelpToastTimer" && audioHelpToastTimer) {
+    clearTimeout(audioHelpToastTimer);
+  }
+
+  if (timerName === "editWarningToastTimer" && editWarningToastTimer) {
+    clearTimeout(editWarningToastTimer);
+  }
+
+  const timer = setTimeout(() => {
+    toast.remove();
+  }, 4000);
+
+  if (timerName === "audioHelpToastTimer") {
+    audioHelpToastTimer = timer;
+  } else {
+    editWarningToastTimer = timer;
+  }
+}
+
+function showAudioHelpOnce() {
+  try {
+    if (sessionStorage.getItem("beatseed_audio_help_shown") === "1") {
+      return;
+    }
+
+    sessionStorage.setItem("beatseed_audio_help_shown", "1");
+  } catch (err) {
+    // If sessionStorage is blocked, still show it once per page instance.
+    if (audioHelpToastTimer) return;
+  }
+
+  showTemporaryToast(t("audioHelpToast"), "audio-help-toast");
+}
+
+function showEditPermissionWarning() {
+  showTemporaryToast(t("editPermissionWarning"), "edit-warning-toast");
+}
+
+
 function beatIsShareReady() {
   const used = getUsedElementKeys();
 
@@ -998,6 +1622,15 @@ function getCompletedLoopsOwnedByCurrentUser() {
 
 function currentUserOwnsAnyCompletedLoop() {
   return getCompletedLoopsOwnedByCurrentUser().length > 0;
+}
+
+function currentUserEditedAnyCompletedLoop() {
+  const currentName = getDisplayProducerName();
+
+  return beat.loops.some(loopId => {
+    if (pendingContributionLoopId === loopId) return false;
+    return getLoopLastEditor(loopId) === currentName;
+  });
 }
 
 function getAvailableLoopsForSelectedElement() {
@@ -1061,15 +1694,20 @@ function currentUserHasCompletedContribution() {
 function getCurrentShareUrl() {
   ensureBeatDataObjects();
 
-  const url = new URL(window.location.href);
-
-  if (beat.loops.length > 0) {
-    url.hash = "beat=" + safeEncode(beat);
-  } else {
-    url.hash = "";
+  if (beat.loops.length === 0) {
+    return buildBackupShareUrl();
   }
 
-  return url.toString();
+  const fingerprint = getBeatFingerprint(beat);
+  const cachedId = getShortLinkCacheValue(fingerprint);
+
+  if (cachedId) {
+    return buildShortShareUrl(cachedId);
+  }
+
+  // Fallback only shown before the user creates/copies the short link.
+  // The Copy / Send buttons will save to Supabase and replace this with a short URL.
+  return buildBackupShareUrl();
 }
 
 function getPendingLoopElementText() {
@@ -1080,18 +1718,34 @@ function getPendingLoopElementText() {
 async function copyInviteLinkFromGuide() {
   const inviteInput = document.getElementById("guideInviteLink");
   const inviteButton = document.getElementById("guideCopyInviteButton");
-  const valueToCopy = inviteInput ? inviteInput.value : getCurrentShareUrl();
+  const originalButtonText = inviteButton ? inviteButton.textContent : "";
 
   try {
+    if (inviteButton) {
+      inviteButton.textContent = t("creatingShareLink");
+    }
+
+    const valueToCopy = await getOrCreateShortShareUrl();
+
     await navigator.clipboard.writeText(valueToCopy);
     if (inviteButton) {
       inviteButton.textContent = t("inviteLinkCopied");
-      setTimeout(() => inviteButton.textContent = t("sendToFriend"), 900);
+      setTimeout(() => inviteButton.textContent = originalButtonText || t("sendToFriend"), 900);
     }
   } catch (err) {
+    console.warn("Could not create short invite link", err);
+
+    const fallbackValue = inviteInput ? inviteInput.value : buildBackupShareUrl();
+
     if (inviteInput) {
+      inviteInput.value = fallbackValue;
       inviteInput.select();
       document.execCommand("copy");
+    }
+
+    if (inviteButton) {
+      inviteButton.textContent = t("shareLinkFailed");
+      setTimeout(() => inviteButton.textContent = originalButtonText || t("sendToFriend"), 1400);
     }
   }
 }
@@ -1115,6 +1769,7 @@ function renderOnboardingPanel() {
   const isSharedCollaboration = loadedFromShareLink && hasLoops;
   const hasCompletedOwnContribution = currentUserHasCompletedContribution();
   const ownsCompletedLoop = currentUserOwnsAnyCompletedLoop();
+  const editedAnyLoop = currentUserEditedAnyCompletedLoop();
 
   onboardingPanelEl.classList.remove("hidden");
 
@@ -1192,7 +1847,11 @@ function renderOnboardingPanel() {
         <p class="guide-copy">${t("completeBeatText")}</p>
       </div>
       ${contributionSummary ? `<div class="contributor-list">${contributionSummary}</div>` : ""}
-      ${buildGuideShareHtml(ownsCompletedLoop ? "shareLatestUpdate" : "sendToFriend")}
+      ${buildGuideShareHtml(
+      (ownsCompletedLoop || editedAnyLoop)
+      ? "shareLatestUpdate"
+      : "sendToFriend"
+      )}
     `;
   } else if (!selectedElementFilter) {
     let title;
@@ -1235,7 +1894,9 @@ function renderOnboardingPanel() {
           ${elementButtonsHtml}
         </div>
       </div>
-      ${hasLoops && ownsCompletedLoop ? buildGuideShareHtml(hasCompletedOwnContribution ? "sendToFriend" : "shareLatestUpdate") : ""}
+      ${hasLoops && (ownsCompletedLoop || editedAnyLoop)
+      ? buildGuideShareHtml("shareLatestUpdate")
+      : ""}
     `;
   } else {
     onboardingPanelEl.innerHTML = "";
@@ -1284,7 +1945,7 @@ function updateGuidedLayoutVisibility() {
   const producerReady = hasProducerNameDecision();
   const readyToChooseLoop = producerReady && selectedElementFilter && !pendingContributionLoopId;
   const showPlayer = producerReady && hasLoops;
-  const showGuideFooter = producerReady && hasLoops && !pendingContributionLoopId && currentUserOwnsAnyCompletedLoop();
+  const showGuideFooter = producerReady && hasLoops && !pendingContributionLoopId && (currentUserOwnsAnyCompletedLoop() || currentUserEditedAnyCompletedLoop() || beatIsShareReady());
 
   if (playerCardEl) {
     playerCardEl.classList.toggle("hidden", !showPlayer);
@@ -1334,13 +1995,8 @@ function canCurrentUserEditLoop(loopId) {
   const loop = getLoopById(loopId);
   if (!loop) return false;
 
-  // The loop currently being added can always be edited until the user clicks Done.
-  if (pendingContributionLoopId === loopId) {
-    return true;
-  }
-
-  const ownerName = getLoopContributor(loopId);
-  return ownerName === getDisplayProducerName();
+  // Everyone can remix and adjust volume. Only the creator can replace or remove.
+  return true;
 }
 
 function render() {
@@ -1357,7 +2013,9 @@ function render() {
   playButton.textContent = isPlaying ? t("pause") : t("play");
   stopButton.textContent = t("stop");
 
-  document.getElementById("heroEyebrow").textContent = t("heroEyebrow");
+  const heroEyebrowEl = document.getElementById("heroEyebrow");
+  heroEyebrowEl.textContent = t("heroEyebrow");
+  heroEyebrowEl.style.display = t("heroEyebrow").trim() === "" ? "none" : "";
   document.getElementById("heroTagline").textContent = t("heroTagline");
   document.getElementById("chooseContributionLabel").textContent = selectedElementFilter
     ? t("pickLoop")
@@ -1371,6 +2029,13 @@ function render() {
   document.getElementById("footerText").textContent = t("footerText");
   document.getElementById("wishlistText").textContent = t("wishlist");
   document.getElementById("supportText").textContent = t("support");
+
+  if (faqButton) {
+    faqButton.textContent = t("faqButton");
+  }
+
+  renderFaqPanel();
+  renderExportPanel();
 
   loopCountEl.style.display = "none";
 
@@ -1423,15 +2088,18 @@ function render() {
       const loop = getLoopById(loopId);
       if (!loop) return;
 
-      const contributor =
-          getLoopContributor(loop.id) ||
-          t("anonymousName");
+      const creator = getLoopCreator(loop.id) || getLoopContributor(loop.id) || t("anonymousName");
+      const lastEditor = getLoopLastEditor(loop.id) || creator;
+      const isCreator = currentUserIsLoopCreator(loop.id);
+      const hasOriginalState = beat.originalStates && beat.originalStates[loop.id];
+      const hasLatestEditState = beat.latestEditedStates && beat.latestEditedStates[loop.id];
+      const isOriginalRestored = beat.restoredOriginalLoops && beat.restoredOriginalLoops[loop.id] === true;
 
       const row = document.createElement("div");
       row.className = "active-loop";
       row.innerHTML = `
         <strong>${index + 1}. ${loop.name}</strong>
-        <span class="loop-meta">${getElementText(loop.type)} - ${contributor}</span>
+        <span class="loop-meta">${getElementText(loop.type)} - ${t("createdBy")} ${creator}${lastEditor && lastEditor !== creator ? ` / ${t("lastEditedBy")} ${lastEditor}` : ""}</span>
 
         <div class="volume-control">
           <span class="loop-meta">${t("vol")}</span>
@@ -1439,22 +2107,42 @@ function render() {
           <span class="volume-readout">${Math.round(getLoopVolume(loop.id) * 100)}%</span>
         </div>
 
+        <button class="edit-chop-button" type="button">${hasCustomChop(loop.id) ? t("editChop") : t("chop")}</button>
+
         ${
-          canCurrentUserEditLoop(loop.id)
-            ? `<button class="edit-chop-button" type="button">${hasCustomChop(loop.id) ? t("editChop") : t("chop")}</button>
-               <button class="remove-loop-button" type="button">${t("remove")}</button>`
-            : `<span class="locked-loop-pill">${t("locked")}</span>`
+          isCreator && hasOriginalState && hasLatestEditState && hasLatestEditState.savedBy && hasLatestEditState.savedBy !== creator
+            ? `<button class="restore-original-button secondary" type="button">${isOriginalRestored ? t("restoreLatestEdit") : t("restoreOriginal")}</button>`
+            : ""
         }
+
+        <button
+          class="remove-loop-button ${isCreator ? "" : "disabled-action-button"}"
+          type="button"
+          aria-disabled="${isCreator ? "false" : "true"}">
+          ${t("remove")}
+        </button>
       `;
 
       const removeLoopButton = row.querySelector(".remove-loop-button");
       if (removeLoopButton) {
-        removeLoopButton.addEventListener("click", () => removeLoop(loop.id));
+        removeLoopButton.addEventListener("click", () => {
+          if (!canCurrentUserRemoveLoop(loop.id)) {
+            showEditPermissionWarning();
+            return;
+          }
+
+          removeLoop(loop.id);
+        });
       }
 
       const editChopButton = row.querySelector(".edit-chop-button");
       if (editChopButton) {
         editChopButton.addEventListener("click", () => openChopEditor(loop.id));
+      }
+
+      const restoreOriginalButton = row.querySelector(".restore-original-button");
+      if (restoreOriginalButton) {
+        restoreOriginalButton.addEventListener("click", () => restoreOriginalLoopState(loop.id));
       }
 
       const volumeSlider = row.querySelector(".volume-slider");
@@ -1674,6 +2362,27 @@ function closeChopEditor() {
 
 
 function finishChopContribution() {
+  const finishedLoopId = selectedChopLoopId || pendingContributionLoopId;
+
+  if (finishedLoopId) {
+    ensureBeatDataObjects();
+
+    const editorName = getDisplayProducerName();
+    const userIsCreator = currentUserIsLoopCreator(finishedLoopId);
+
+    beat.lastEditors[finishedLoopId] = editorName;
+
+    if (userIsCreator) {
+      saveCreatorOriginalState(finishedLoopId);
+    } else {
+      beat.latestEditedStates[finishedLoopId] = snapshotCurrentLoopState(finishedLoopId);
+    }
+
+    if (beat.restoredOriginalLoops) {
+      beat.restoredOriginalLoops[finishedLoopId] = false;
+    }
+  }
+
   if (pendingContributionLoopId) {
     const loop = getLoopById(pendingContributionLoopId);
     currentUserContributionType = loop ? loop.type : currentUserContributionType;
@@ -1682,6 +2391,78 @@ function finishChopContribution() {
     pendingContributionStyleFilter = null;
     selectedElementFilter = null;
     selectedStyleFilter = null;
+  }
+
+  updateShareLink();
+  closeChopEditor();
+  render();
+}
+
+function handleChooseDifferentSound(loopId) {
+  if (pendingContributionLoopId && pendingContributionLoopId === loopId) {
+    pickDifferentLoopForPendingContribution();
+    return;
+  }
+
+  if (!canCurrentUserReplaceLoop(loopId)) {
+    showEditPermissionWarning();
+    return;
+  }
+
+  const loopToReplace = getLoopById(loopId);
+  if (!loopToReplace) return;
+
+  beat.loops = beat.loops.filter(existingLoopId => existingLoopId !== loopId);
+
+  delete beat.chops[loopId];
+  delete beat.volumes[loopId];
+
+  if (beat.contributors) {
+    delete beat.contributors[loopId];
+
+    if (isSingleUseElement(loopToReplace.type)) {
+      delete beat.contributors[loopToReplace.type];
+    }
+  }
+
+  if (beat.loopCreators) {
+    delete beat.loopCreators[loopId];
+  }
+
+  if (beat.lastEditors) {
+    delete beat.lastEditors[loopId];
+  }
+
+  if (beat.originalStates) {
+    delete beat.originalStates[loopId];
+  }
+
+  if (beat.latestEditedStates) {
+    delete beat.latestEditedStates[loopId];
+  }
+
+  if (beat.restoredOriginalLoops) {
+    delete beat.restoredOriginalLoops[loopId];
+  }
+
+  selectedElementFilter = loopToReplace.type;
+  selectedStyleFilter = null;
+  selectedStyleFilters = [];
+  previewLoopId = null;
+  filterPanelOpen = false;
+
+  pendingContributionLoopId = null;
+  pendingContributionElementFilter = null;
+  pendingContributionStyleFilter = null;
+  currentUserContributionType = null;
+
+  if (selectedChopLoopId === loopId) {
+    selectedChopLoopId = null;
+    selectedChopSlotIndex = 0;
+  }
+
+  if (isPlaying) {
+    stopLoopSource(loopId);
   }
 
   closeChopEditor();
@@ -1700,6 +2481,26 @@ function pickDifferentLoopForPendingContribution() {
   beat.loops = beat.loops.filter(existingLoopId => existingLoopId !== loopIdToRemove);
   delete beat.chops[loopIdToRemove];
   delete beat.volumes[loopIdToRemove];
+
+  if (beat.loopCreators) {
+    delete beat.loopCreators[loopIdToRemove];
+  }
+
+  if (beat.lastEditors) {
+    delete beat.lastEditors[loopIdToRemove];
+  }
+
+  if (beat.originalStates) {
+    delete beat.originalStates[loopIdToRemove];
+  }
+
+  if (beat.latestEditedStates) {
+    delete beat.latestEditedStates[loopIdToRemove];
+  }
+
+  if (beat.restoredOriginalLoops) {
+    delete beat.restoredOriginalLoops[loopIdToRemove];
+  }
 
   if (beat.contributors) {
     delete beat.contributors[loopIdToRemove];
@@ -1969,6 +2770,7 @@ function renderChopEditor() {
       <div>
         <p class="label">${t("chopEditor")}</p>
         <h2>${loop.name}</h2>
+        <p class="loop-meta">${t("createdBy")} ${getLoopCreator(loop.id) || t("anonymousName")}${getLoopLastEditor(loop.id) && getLoopLastEditor(loop.id) !== getLoopCreator(loop.id) ? ` / ${t("lastEditedBy")} ${getLoopLastEditor(loop.id)}` : ""}</p>
       </div>
       ${pendingContributionLoopId === loop.id ? "" : `<button class="ghost close-chop-button" type="button">${t("close")}</button>`}
     </div>
@@ -1996,7 +2798,12 @@ function renderChopEditor() {
       <button class="secondary random-chop-button" type="button">${t("random")}</button>
       <button class="secondary reverse-chop-button" type="button">${t("reverseSelected")}</button>
       <button class="secondary mute-chop-button" type="button">${t("muteSelected")}</button>
-      <button class="secondary pick-different-loop-button" type="button">${t("pickDifferentLoop")}</button>
+      <button
+        class="secondary pick-different-loop-button ${canCurrentUserReplaceLoop(loop.id) || pendingContributionLoopId === loop.id ? "" : "disabled-action-button"}"
+        type="button"
+        aria-disabled="${canCurrentUserReplaceLoop(loop.id) || pendingContributionLoopId === loop.id ? "false" : "true"}">
+        ${t("chooseDifferentSound")}
+      </button>
       <button class="done-chop-button" type="button">${t("done")}</button>
     </div>
   `;
@@ -2010,7 +2817,7 @@ function renderChopEditor() {
   chopEditorEl.querySelector(".random-chop-button").addEventListener("click", () => randomizeChop(loop.id));
   chopEditorEl.querySelector(".reverse-chop-button").addEventListener("click", () => toggleReverseSelectedChop(loop.id));
   chopEditorEl.querySelector(".mute-chop-button").addEventListener("click", () => toggleSilentSelectedChop(loop.id));
-  chopEditorEl.querySelector(".pick-different-loop-button").addEventListener("click", pickDifferentLoopForPendingContribution);
+  chopEditorEl.querySelector(".pick-different-loop-button").addEventListener("click", () => handleChooseDifferentSound(loop.id));
 
   chopEditorEl.querySelectorAll("[data-grid-size]").forEach(button => {
     button.addEventListener("click", () => changeChopGrid(loop.id, Number(button.dataset.gridSize)));
@@ -2038,6 +2845,272 @@ function renderChopEditor() {
 
   drawChopWaveforms(loop.id);
 }
+
+function getExportFileName(extension) {
+  const cleanName = (beat.name || t("untitledBeat"))
+    .replace(/[^a-z0-9_\- ]/gi, "")
+    .trim()
+    .replace(/\s+/g, "_")
+    || "beatseed_beat";
+
+  return `${cleanName}.${extension}`;
+}
+
+function floatTo16BitPcmSample(sample) {
+  const clampedSample = Math.max(-1, Math.min(1, sample));
+  return clampedSample < 0
+    ? clampedSample * 0x8000
+    : clampedSample * 0x7fff;
+}
+
+function encodeWavFromAudioBuffer(audioBuffer) {
+  const channelCount = audioBuffer.numberOfChannels;
+  const sampleRate = audioBuffer.sampleRate;
+  const sampleCount = audioBuffer.length;
+  const bytesPerSample = 2;
+  const blockAlign = channelCount * bytesPerSample;
+  const byteRate = sampleRate * blockAlign;
+  const dataSize = sampleCount * blockAlign;
+  const buffer = new ArrayBuffer(44 + dataSize);
+  const view = new DataView(buffer);
+
+  function writeString(offset, value) {
+    for (let i = 0; i < value.length; i++) {
+      view.setUint8(offset + i, value.charCodeAt(i));
+    }
+  }
+
+  writeString(0, "RIFF");
+  view.setUint32(4, 36 + dataSize, true);
+  writeString(8, "WAVE");
+  writeString(12, "fmt ");
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, channelCount, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, byteRate, true);
+  view.setUint16(32, blockAlign, true);
+  view.setUint16(34, 16, true);
+  writeString(36, "data");
+  view.setUint32(40, dataSize, true);
+
+  let writeOffset = 44;
+
+  for (let sampleIndex = 0; sampleIndex < sampleCount; sampleIndex++) {
+    for (let channelIndex = 0; channelIndex < channelCount; channelIndex++) {
+      const channelData = audioBuffer.getChannelData(channelIndex);
+      view.setInt16(
+        writeOffset,
+        floatTo16BitPcmSample(channelData[sampleIndex]),
+        true
+      );
+      writeOffset += bytesPerSample;
+    }
+  }
+
+  return new Blob([buffer], { type: "audio/wav" });
+}
+
+function downloadBlob(blob, filename) {
+  const objectUrl = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = objectUrl;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+
+  setTimeout(() => {
+    URL.revokeObjectURL(objectUrl);
+    link.remove();
+  }, 1000);
+}
+
+function connectOfflineMaster(offlineContext) {
+  const masterNode = offlineContext.createGain();
+  masterNode.gain.value = 0.9;
+
+  const compressorNode = offlineContext.createDynamicsCompressor();
+  compressorNode.threshold.value = -10;
+  compressorNode.knee.value = 18;
+  compressorNode.ratio.value = 8;
+  compressorNode.attack.value = 0.003;
+  compressorNode.release.value = 0.16;
+
+  masterNode.connect(compressorNode);
+  compressorNode.connect(offlineContext.destination);
+
+  return masterNode;
+}
+
+function scheduleOfflineSegment(offlineContext, masterNode, buffer, loop, sourceOffset, startTime, duration, shouldFadeIn, shouldFadeOut) {
+  if (duration <= 0.005) return;
+
+  const source = offlineContext.createBufferSource();
+  const gainNode = offlineContext.createGain();
+
+  source.buffer = buffer;
+
+  const fadeTime = Math.min(0.006, duration * 0.35);
+
+  gainNode.gain.setValueAtTime(shouldFadeIn ? 0 : loop.gain * getLoopVolume(loop.id), startTime);
+
+  if (shouldFadeIn) {
+    gainNode.gain.linearRampToValueAtTime(loop.gain * getLoopVolume(loop.id), startTime + fadeTime);
+  }
+
+  if (shouldFadeOut) {
+    gainNode.gain.setValueAtTime(loop.gain * getLoopVolume(loop.id), Math.max(startTime, startTime + duration - fadeTime));
+    gainNode.gain.linearRampToValueAtTime(0, startTime + duration);
+  }
+
+  source.connect(gainNode);
+  gainNode.connect(masterNode);
+
+  try {
+    source.start(startTime, sourceOffset, duration);
+  } catch (err) {
+    console.warn("Could not schedule offline export segment", err);
+  }
+}
+
+function scheduleOfflineNormalLoop(offlineContext, masterNode, loop, buffer, exportDuration) {
+  const source = offlineContext.createBufferSource();
+  const gainNode = offlineContext.createGain();
+
+  source.buffer = buffer;
+  source.loop = true;
+
+  gainNode.gain.value = loop.gain * getLoopVolume(loop.id);
+
+  source.connect(gainNode);
+  gainNode.connect(masterNode);
+
+  source.start(0, 0);
+  source.stop(exportDuration);
+}
+
+function scheduleOfflineChoppedLoop(offlineContext, masterNode, loop, buffer, exportDuration) {
+  const recipe = getChopRecipe(loop.id);
+  const sliceDuration = buffer.duration / recipe.slices;
+  const totalSlots = Math.ceil(exportDuration / sliceDuration);
+
+  for (let exportSlotIndex = 0; exportSlotIndex < totalSlots; exportSlotIndex++) {
+    const slotIndex = exportSlotIndex % recipe.slices;
+    const startTime = exportSlotIndex * sliceDuration;
+    const duration = Math.min(sliceDuration, exportDuration - startTime);
+
+    if (duration <= 0.005) continue;
+
+    const isSilent = recipe.silent && recipe.silent[slotIndex] === true;
+    if (isSilent) continue;
+
+    const sourceSliceIndex = recipe.pattern[slotIndex];
+    const sourceOffset = sourceSliceIndex * sliceDuration;
+    const isStutter = recipe.stutter && recipe.stutter[slotIndex] === true;
+
+    const previousSlotIndex = (slotIndex - 1 + recipe.slices) % recipe.slices;
+    const nextSlotIndex = (slotIndex + 1) % recipe.slices;
+
+    const previousSourceSliceIndex = recipe.pattern[previousSlotIndex];
+    const nextSourceSliceIndex = recipe.pattern[nextSlotIndex];
+
+    const naturalFromPrevious = ((previousSourceSliceIndex + 1) % recipe.slices) === sourceSliceIndex;
+    const naturalToNext = ((sourceSliceIndex + 1) % recipe.slices) === nextSourceSliceIndex;
+
+    if (isStutter) {
+      const tinyChunkDuration = buffer.duration / 64;
+      const repeatDuration = Math.min(tinyChunkDuration, duration);
+      const repeatCount = Math.ceil(duration / repeatDuration);
+
+      for (let repeatIndex = 0; repeatIndex < repeatCount; repeatIndex++) {
+        const segmentStartTime = startTime + (repeatIndex * repeatDuration);
+        const remainingDuration = (startTime + duration) - segmentStartTime;
+        const segmentDuration = Math.min(repeatDuration, remainingDuration);
+
+        scheduleOfflineSegment(
+          offlineContext,
+          masterNode,
+          buffer,
+          loop,
+          sourceOffset,
+          segmentStartTime,
+          segmentDuration,
+          true,
+          true
+        );
+      }
+    } else {
+      scheduleOfflineSegment(
+        offlineContext,
+        masterNode,
+        buffer,
+        loop,
+        sourceOffset,
+        startTime,
+        duration,
+        !naturalFromPrevious,
+        !naturalToNext
+      );
+    }
+  }
+}
+
+async function exportBeatAsWav() {
+  if (beat.loops.length === 0) {
+    showTemporaryToast(t("noLoops"), "edit-warning-toast");
+    return;
+  }
+
+  try {
+    showTemporaryToast(t("exportPreparing"), "edit-warning-toast");
+
+    await ensureAudioContext();
+
+    const loadedLoops = [];
+
+    for (const loopId of beat.loops) {
+      const loop = getLoopById(loopId);
+      if (!loop) continue;
+
+      const buffer = await loadBuffer(loop);
+
+      loadedLoops.push({
+        loop: loop,
+        buffer: buffer
+      });
+    }
+
+    if (loadedLoops.length === 0) {
+      showTemporaryToast(t("exportFailed"), "edit-warning-toast");
+      return;
+    }
+
+    const baseDuration = loadedLoops[0].buffer.duration;
+    const exportRepeats = getExportRepeatCount();
+    const exportDuration = baseDuration * exportRepeats;
+    const sampleRate = audioContext ? audioContext.sampleRate : 44100;
+    const offlineContext = new OfflineAudioContext(2, Math.ceil(exportDuration * sampleRate), sampleRate);
+    const masterNode = connectOfflineMaster(offlineContext);
+
+    loadedLoops.forEach(item => {
+      if (hasCustomChop(item.loop.id)) {
+        scheduleOfflineChoppedLoop(offlineContext, masterNode, item.loop, item.buffer, exportDuration);
+      } else {
+        scheduleOfflineNormalLoop(offlineContext, masterNode, item.loop, item.buffer, exportDuration);
+      }
+    });
+
+    const renderedBuffer = await offlineContext.startRendering();
+    const wavBlob = encodeWavFromAudioBuffer(renderedBuffer);
+
+    downloadBlob(wavBlob, getExportFileName("wav"));
+  } catch (err) {
+    console.warn("Could not export WAV", err);
+    showTemporaryToast(t("exportFailed"), "edit-warning-toast");
+  }
+}
+
 
 async function ensureAudioContext() {
   if (!audioContext) {
@@ -2406,6 +3479,7 @@ async function startAllLoopSources() {
 
   isPlaying = true;
   playButton.textContent = t("pause");
+  showAudioHelpOnce();
 }
 
 function pauseBeat() {
@@ -2564,6 +3638,8 @@ async function previewLoop(loopId) {
     activePreviewSource = source;
     activePreviewGainNode = gainNode;
 
+    showAudioHelpOnce();
+
     source.onended = () => {
       if (activePreviewSource === source) {
         activePreviewSource = null;
@@ -2651,6 +3727,8 @@ if (!contributorName || contributorName.trim() === "") {
   }
 
   beat.contributors[newLoop.id] = contributorName;
+  beat.loopCreators[newLoop.id] = contributorName;
+  beat.lastEditors[newLoop.id] = contributorName;
 
   if (isSingleUseElement(newLoop.type)) {
     beat.contributors[newLoop.type] = contributorName;
@@ -2659,6 +3737,26 @@ if (!contributorName || contributorName.trim() === "") {
   if (replacedLoopId) {
     delete beat.chops[replacedLoopId];
     delete beat.volumes[replacedLoopId];
+
+    if (beat.loopCreators) {
+      delete beat.loopCreators[replacedLoopId];
+    }
+
+    if (beat.lastEditors) {
+      delete beat.lastEditors[replacedLoopId];
+    }
+
+    if (beat.originalStates) {
+      delete beat.originalStates[replacedLoopId];
+    }
+
+    if (beat.latestEditedStates) {
+      delete beat.latestEditedStates[replacedLoopId];
+    }
+
+    if (beat.restoredOriginalLoops) {
+      delete beat.restoredOriginalLoops[replacedLoopId];
+    }
 
     const replacedLoop = getLoopById(replacedLoopId);
     if (beat.contributors) {
@@ -2710,7 +3808,8 @@ if (!contributorName || contributorName.trim() === "") {
 }
 
 async function removeLoop(loopId) {
-  if (!canCurrentUserEditLoop(loopId)) {
+  if (!canCurrentUserRemoveLoop(loopId)) {
+    showEditPermissionWarning();
     return;
   }
 
@@ -2720,6 +3819,26 @@ async function removeLoop(loopId) {
 
   delete beat.chops[loopId];
   delete beat.volumes[loopId];
+
+  if (beat.loopCreators) {
+    delete beat.loopCreators[loopId];
+  }
+
+  if (beat.lastEditors) {
+    delete beat.lastEditors[loopId];
+  }
+
+  if (beat.originalStates) {
+    delete beat.originalStates[loopId];
+  }
+
+  if (beat.latestEditedStates) {
+    delete beat.latestEditedStates[loopId];
+  }
+
+  if (beat.restoredOriginalLoops) {
+    delete beat.restoredOriginalLoops[loopId];
+  }
 
   if (beat.contributors) {
     delete beat.contributors[loopId];
@@ -2760,7 +3879,12 @@ function newBeat() {
     volumes: {},
     chops: {},
     startedBy: "",
-    contributors: {}
+    contributors: {},
+    loopCreators: {},
+    lastEditors: {},
+    originalStates: {},
+    latestEditedStates: {},
+    restoredOriginalLoops: {}
   };
 
   producerNameDecisionMade = false;
@@ -2784,23 +3908,52 @@ function newBeat() {
 }
 
 async function copyShareLink() {
+  const originalButtonText = copyButton.textContent;
+
   try {
-    await navigator.clipboard.writeText(shareLinkEl.value);
+    copyButton.textContent = t("creatingShareLink");
+    const valueToCopy = await getOrCreateShortShareUrl();
+
+    await navigator.clipboard.writeText(valueToCopy);
     copyButton.textContent = t("copied");
     setTimeout(() => copyButton.textContent = t("copy"), 900);
   } catch (err) {
+    console.warn("Could not create short share link", err);
+
+    shareLinkEl.value = buildBackupShareUrl();
     shareLinkEl.select();
     document.execCommand("copy");
+
+    copyButton.textContent = t("shareLinkFailed");
+    setTimeout(() => copyButton.textContent = originalButtonText || t("copy"), 1400);
   }
 }
 
-createVisualizer();
-animateVisualizer();
+async function initializeBeatSeed() {
+  createVisualizer();
+  animateVisualizer();
 
-loadBeatFromUrl();
-render();
+  await loadBeatFromUrl();
+  render();
 
-playButton.addEventListener("click", playBeat);
-stopButton.addEventListener("click", stopBeat);
-newBeatButton.addEventListener("click", newBeat);
-copyButton.addEventListener("click", copyShareLink);
+  playButton.addEventListener("click", playBeat);
+  stopButton.addEventListener("click", stopBeat);
+  newBeatButton.addEventListener("click", newBeat);
+  copyButton.addEventListener("click", copyShareLink);
+}
+
+initializeBeatSeed();
+
+if (faqButton) {
+  faqButton.addEventListener("click", event => {
+    event.preventDefault();
+    toggleFaq();
+  });
+}
+
+
+function getExportRepeatCount(){
+  if(exportLengthMode==="short") return 4;
+  if(exportLengthMode==="long") return 16;
+  return 8;
+}

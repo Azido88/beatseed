@@ -1120,3 +1120,201 @@ body {
 .preview-volume-control .volume-slider {
   flex: 1;
 }
+
+/* BeatSeed v11 - collaboration editing + audio help */
+.audio-help-toast,
+.edit-warning-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  z-index: 9999;
+  width: min(520px, calc(100% - 24px));
+  padding: 14px 18px;
+  border-radius: 999px;
+  text-align: center;
+  font-weight: 800;
+  color: white;
+  border: 1px solid rgba(255,255,255,0.28);
+  background: rgba(0,0,0,0.78);
+  box-shadow: 0 18px 60px rgba(0,0,0,0.35);
+  backdrop-filter: blur(16px);
+  animation: beatseedToastIn 0.18s ease-out;
+}
+
+.edit-warning-toast {
+  border-color: rgba(255, 61, 242, 0.45);
+  box-shadow:
+    0 18px 60px rgba(0,0,0,0.35),
+    0 0 28px rgba(255, 61, 242, 0.22);
+}
+
+@keyframes beatseedToastIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.disabled-action-button {
+  opacity: 0.38;
+  cursor: pointer;
+  filter: grayscale(1);
+}
+
+.disabled-action-button:hover {
+  opacity: 0.55;
+}
+
+.restore-original-button {
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 12px;
+  background: rgba(119, 255, 146, 0.14);
+  border: 1px solid rgba(119, 255, 146, 0.38);
+}
+
+@media (min-width: 700px) {
+  .restore-original-button {
+    width: auto;
+  }
+}
+
+/* BeatSeed v12 FAQ panel */
+.faq-content {
+  display: grid;
+  gap: 14px;
+}
+
+.faq-content h2 {
+  text-align: center;
+  margin: 0 0 4px 0;
+}
+
+.faq-item {
+  padding: 12px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.16);
+}
+
+.faq-item h3 {
+  margin: 0 0 6px 0;
+  font-size: 1rem;
+}
+
+.faq-item p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+
+#faqButton { color: inherit; }
+#faqButton:visited { color: inherit; }
+
+.footer-links #faqButton {
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.footer-links #faqButton:hover {
+  color: white;
+  text-decoration: underline;
+}
+
+/* BeatSeed v15 export panel groundwork */
+.export-content {
+  display: grid;
+  gap: 14px;
+}
+
+.export-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.export-actions button {
+  width: 100%;
+}
+
+.export-video-button,
+.export-disabled-button {
+  opacity: 0.55;
+  cursor: pointer;
+}
+
+.export-video-button span,
+.export-disabled-button span {
+  display: block;
+  margin-top: 3px;
+  font-size: 0.72rem;
+  opacity: 0.78;
+}
+
+@media (min-width: 700px) {
+  .export-actions {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
+
+
+.export-length-options{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:12px 0}
+.export-length-btn{padding:10px 14px;border-radius:10px;cursor:pointer}
+.export-length-btn.active{outline:2px solid currentColor}
+.export-length-sub{font-size:.8em;opacity:.8;display:block}
+.export-disabled{opacity:.5;pointer-events:none}
+
+
+/* BeatSeed v18 export length fixes */
+.export-length-panel {
+  display: grid;
+  gap: 8px;
+  text-align: center;
+}
+
+.export-length-options {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  justify-content: center;
+  margin: 4px 0 0;
+}
+
+.export-length-btn {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid var(--line);
+}
+
+.export-length-btn.active {
+  outline: 2px solid white;
+  box-shadow: 0 0 22px rgba(255, 255, 255, 0.22);
+}
+
+.export-length-sub {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.78rem;
+  opacity: 0.78;
+}
+
+.export-disabled-button {
+  opacity: 0.55;
+  cursor: pointer;
+}
+
+@media (min-width: 700px) {
+  .export-length-options {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
