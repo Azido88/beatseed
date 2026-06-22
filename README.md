@@ -1,6 +1,6 @@
-# BeatFriend Prototype
+# BeatSeed Prototype
 
-A bare-bones phone-browser prototype for a collaborative loop-stacking beatmaker.
+A phone-browser prototype for a collaborative loop-stacking beatmaker.
 
 ## What this version does
 
