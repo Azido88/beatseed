@@ -396,8 +396,7 @@ input {
   margin-bottom: 12px;
 }
 
-.chop-grid-buttons button.selected,
-.chop-slot.selected {
+.chop-grid-buttons button.selected {
   outline: 2px solid white;
 }
 
@@ -1317,4 +1316,205 @@ body {
   .export-length-options {
     grid-template-columns: 1fr 1fr 1fr;
   }
+}
+
+/* Chop editor clarity pass */
+.chop-section-divider {
+  width: 100%;
+  height: 1px;
+  margin: 18px 0 12px;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.editing-slot-label {
+  margin: 4px 0 0;
+  font-size: 0.86rem;
+  color: rgba(255, 74, 112, 0.95);
+  font-weight: 800;
+}
+
+.original-loop-section {
+  padding: 10px;
+  margin-left: -10px;
+  margin-right: -10px;
+  border-radius: 18px;
+  border: 1px solid rgba(41, 231, 255, 0.26);
+  box-shadow: 0 0 22px rgba(41, 231, 255, 0.14);
+  background: rgba(41, 231, 255, 0.035);
+}
+
+.chop-row-wrap {
+  position: relative;
+}
+
+.chop-waveform {
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.top-waveform,
+.top-lane .chop-slot {
+  cursor: grab;
+}
+
+.top-waveform:active,
+.top-lane .chop-slot:active {
+  cursor: grabbing;
+}
+
+.selected-waveform-chunk {
+  position: absolute;
+  top: 8px;
+  height: 56px;
+  border-radius: 10px;
+  border: 2px solid rgba(255, 74, 112, 0.9);
+  background: rgba(255, 74, 112, 0.18);
+  box-shadow: 0 0 20px rgba(255, 74, 112, 0.65);
+  pointer-events: none;
+  animation: selectedWaveformPulse 1.15s ease-in-out infinite;
+  z-index: 2;
+}
+
+@keyframes selectedWaveformPulse {
+  0% {
+    opacity: 1;
+    box-shadow: 0 0 22px rgba(255, 74, 112, 0.72);
+  }
+
+  50% {
+    opacity: 0.5;
+    box-shadow: 0 0 10px rgba(255, 74, 112, 0.34);
+  }
+
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 22px rgba(255, 74, 112, 0.72);
+  }
+}
+
+.chop-slot,
+.chop-source-slice {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.chop-source-slice:hover,
+.chop-slot:hover {
+  outline: 1px solid rgba(255, 255, 255, 0.45);
+}
+
+
+/* Chop editor UX v21 - combined selected slots and visible dragging */
+.chop-row-block {
+  position: relative;
+  margin: 8px 0 6px;
+}
+
+.chop-row-block .chop-waveform {
+  margin: 0 0 6px 0;
+}
+
+.selected-slot-frame {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 12px;
+  border: 2px solid rgba(255, 74, 112, 0.95);
+  background: rgba(255, 74, 112, 0.16);
+  box-shadow: 0 0 24px rgba(255, 74, 112, 0.62);
+  pointer-events: none;
+  animation: selectedWaveformPulse 1.15s ease-in-out infinite;
+  z-index: 4;
+}
+
+.selected-waveform-chunk {
+  display: none;
+}
+
+.chop-playhead {
+  top: 0;
+  height: 5px;
+  z-index: 6;
+}
+
+.chop-slot.selected {
+  outline: none;
+}
+
+.top-lane .chop-slot.dragging-source {
+  opacity: 0.42;
+}
+
+.top-lane .chop-slot.drag-target-slot {
+  outline: 2px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.35);
+  transform: translateY(-2px);
+}
+
+.chop-drag-ghost {
+  position: fixed;
+  z-index: 99999;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.92);
+  background: linear-gradient(135deg, rgba(255, 61, 242, 0.86), rgba(41, 231, 255, 0.86));
+  color: white;
+  font-weight: 900;
+  font-size: 1.25rem;
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.35), 0 0 26px rgba(255, 255, 255, 0.28);
+  transform: rotate(-2deg) scale(1.04);
+  opacity: 0.95;
+}
+
+.chop-dragging-active {
+  cursor: grabbing;
+  user-select: none;
+}
+
+.top-row-block .chop-waveform,
+.top-row-block .chop-slot {
+  touch-action: none;
+}
+
+
+.chop-action-symbol {
+  display: inline-block;
+  margin-right: 7px;
+  font-weight: 900;
+  opacity: 0.95;
+}
+
+/* Chop editor UX v23 - source dragging and extra FX */
+.bottom-row-block .chop-waveform,
+.bottom-row-block .chop-source-slice {
+  cursor: grab;
+  touch-action: none;
+}
+
+.bottom-row-block .chop-waveform:active,
+.bottom-row-block .chop-source-slice:active {
+  cursor: grabbing;
+}
+
+.chop-slot.transform {
+  border-color: rgba(255, 211, 77, 0.56);
+  background: rgba(255, 211, 77, 0.13);
+}
+
+.chop-slot.half-speed {
+  border-color: rgba(180, 120, 255, 0.56);
+  background: rgba(180, 120, 255, 0.13);
+}
+
+.chop-drag-ghost.source-drag-ghost {
+  background: linear-gradient(135deg, rgba(41, 231, 255, 0.9), rgba(119, 255, 146, 0.86));
+}
+
+.top-row-block .chop-slot.drag-target-slot {
+  outline: 2px solid rgba(119, 255, 146, 0.95);
+  box-shadow: 0 0 20px rgba(119, 255, 146, 0.48);
+  transform: translateY(-2px) scale(1.02);
 }

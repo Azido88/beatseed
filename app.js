@@ -35,12 +35,14 @@ const TEXT = {
     chopEditor: "Chop Editor",
     close: "Close",
     grid: "Grid",
-    rearrangedLoop: "Your rearranged loop - tap a slot to edit it",
-    originalLoop: "Original loop - tap a slice to place it above",
+    rearrangedLoop: "Step 1: Tap or drag a slot in your rearranged loop",
+    originalLoop: "Step 2: Tap a slice below to replace the selected slot",
     reset: "Reset",
-    random: "Random",
-    reverseSelected: "Stutter selected",
-    muteSelected: "Mute selected",
+    random: "Randomize",
+    reverseSelected: "Stutter Selected",
+    muteSelected: "Mute Selected",
+    transformSelected: "Transform Selected",
+    halfSpeedSelected: "Half Speed Selected",
     done: "Done",
     beatNamePrompt: "Beat name:",
     beatSaved: "Beat saved on this device.",
@@ -176,12 +178,14 @@ const TEXT = {
     chopEditor: "切片編輯器",
     close: "關閉",
     grid: "格數",
-    rearrangedLoop: "重新排列的 Loop - 點選上方格子進行編輯",
-    originalLoop: "原始 Loop - 點選下方切片放到上方",
+    rearrangedLoop: "步驟 1：點選或拖曳上方重新編排的格子",
+    originalLoop: "步驟 2：點選下方切片來替換目前選取的格子",
     reset: "重設",
-    random: "隨機",
+    random: "隨機編排",
     reverseSelected: "Stutter 所選",
     muteSelected: "靜音所選",
+    transformSelected: "Transform 所選",
+    halfSpeedSelected: "Half Speed 所選",
     done: "完成",
     beatNamePrompt: "節拍名稱：",
     beatSaved: "節拍已儲存在此裝置。",
@@ -332,6 +336,8 @@ const LOOP_LIBRARY = [
   { id: "texture_06", name: "Video Game Bubbles 01", file: "audio/loops/texture_6.mp3", type: "texture", tags: ["texture", "electronic", "hiphop", "lofi"], gain: 0.6 },
   { id: "texture_07", name: "Electronic Glitches 03", file: "audio/loops/texture_7.mp3", type: "texture", tags: ["texture", "electronic", "hiphop", "lofi", "latin"], gain: 0.6 },
   { id: "texture_08", name: "Electronic Glitches 04", file: "audio/loops/texture_8.mp3", type: "texture", tags: ["texture", "electronic", "hiphop", "lofi", "latin"], gain: 0.6 },
+  { id: "texture_09", name: "Ethereal Strings 02", file: "audio/loops/texture_9.mp3", type: "texture", tags: ["texture", "electronic", "hiphop", "lofi", "latin"], gain: 0.6 },
+  { id: "texture_10", name: "Ethereal Strings 03", file: "audio/loops/texture_10.mp3", type: "texture", tags: ["texture", "electronic", "hiphop", "lofi", "latin"], gain: 0.6 },
 
   { id: "vocal_01", name: "Vocoder Glitched 01", file: "audio/loops/vocal_1.mp3", type: "vocals", tags: ["vocals", "electronic", "hiphop", "lofi"], gain: 0.7 },
   { id: "vocal_02", name: "Vocoder Vox Glitched 02", file: "audio/loops/vocal_2.mp3", type: "vocals", tags: ["vocals", "electronic", "hiphop", "lofi"], gain: 0.7 },
@@ -388,6 +394,10 @@ let pausedOffset = 0;
 
 let selectedChopLoopId = null;
 let selectedChopSlotIndex = 0;
+let draggedChopSlotIndex = null;
+let activeChopDrag = null;
+let chopDragGhostEl = null;
+let chopDragTargetSlotIndex = null;
 
 let selectedElementFilter = null;
 let selectedStyleFilter = null;
@@ -848,7 +858,9 @@ function getChopRecipe(loopId) {
       slices: DEFAULT_CHOP_SLICES,
       pattern: makeIdentityPattern(DEFAULT_CHOP_SLICES),
       stutter: {},
-      silent: {}
+      silent: {},
+      transform: {},
+      halfSpeed: {}
     };
   }
 
@@ -886,11 +898,33 @@ function getChopRecipe(loopId) {
     }
   }
 
+  const transform = {};
+  if (recipe.transform) {
+    for (const key in recipe.transform) {
+      const cleanKey = Math.floor(Number(key));
+      if (!Number.isNaN(cleanKey) && cleanKey >= 0 && cleanKey < sliceCount) {
+        transform[cleanKey] = recipe.transform[key] === true;
+      }
+    }
+  }
+
+  const halfSpeed = {};
+  if (recipe.halfSpeed) {
+    for (const key in recipe.halfSpeed) {
+      const cleanKey = Math.floor(Number(key));
+      if (!Number.isNaN(cleanKey) && cleanKey >= 0 && cleanKey < sliceCount) {
+        halfSpeed[cleanKey] = recipe.halfSpeed[key] === true;
+      }
+    }
+  }
+
   return {
     slices: sliceCount,
     pattern: pattern,
     stutter: stutter,
-    silent: silent
+    silent: silent,
+    transform: transform,
+    halfSpeed: halfSpeed
   };
 }
 
@@ -901,7 +935,9 @@ function setChopRecipe(loopId, recipe) {
     slices: recipe.slices,
     pattern: recipe.pattern.slice(),
     stutter: recipe.stutter || recipe.reverse || {},
-    silent: recipe.silent || {}
+    silent: recipe.silent || {},
+    transform: recipe.transform || {},
+    halfSpeed: recipe.halfSpeed || {}
   };
 
   if (beat.restoredOriginalLoops) {
@@ -924,7 +960,11 @@ async function refreshPlayingLoopAfterChopEdit(loopId) {
 function resetChopRecipe(loopId, sliceCount = DEFAULT_CHOP_SLICES) {
   setChopRecipe(loopId, {
     slices: sliceCount,
-    pattern: makeIdentityPattern(sliceCount)
+    pattern: makeIdentityPattern(sliceCount),
+    stutter: {},
+    silent: {},
+    transform: {},
+    halfSpeed: {}
   });
 }
 
@@ -935,6 +975,8 @@ function hasCustomChop(loopId) {
     if (recipe.pattern[i] !== i) return true;
     if (recipe.stutter && recipe.stutter[i] === true) return true;
     if (recipe.silent && recipe.silent[i] === true) return true;
+    if (recipe.transform && recipe.transform[i] === true) return true;
+    if (recipe.halfSpeed && recipe.halfSpeed[i] === true) return true;
   }
 
   return false;
@@ -1026,13 +1068,10 @@ function drawWaveformCanvas(canvas, buffer, recipe, useChopPattern, startSlot = 
   ctx.fillStyle = "rgba(255, 255, 255, 0.055)";
   ctx.fillRect(0, 0, displayWidth, displayHeight);
 
-  ctx.strokeStyle = useChopPattern ? "rgba(119, 255, 146, 0.92)" : "rgba(41, 231, 255, 0.92)";
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-
   for (let slotIndex = startSlot; slotIndex < rowEndSlot; slotIndex++) {
     const sourceSliceIndex = useChopPattern ? recipe.pattern[slotIndex] : slotIndex;
     const isStutter = useChopPattern && recipe.stutter && recipe.stutter[slotIndex] === true;
+    const isSelected = useChopPattern && slotIndex === selectedChopSlotIndex;
 
     const sourceStartSample = Math.floor((sourceSliceIndex / sliceCount) * data.length);
     const sourceEndSample = Math.floor(((sourceSliceIndex + 1) / sliceCount) * data.length);
@@ -1041,6 +1080,12 @@ function drawWaveformCanvas(canvas, buffer, recipe, useChopPattern, startSlot = 
     const visualSlotIndex = slotIndex - startSlot;
     const visualStartX = visualSlotIndex * slotWidth;
     const visualEndX = (visualSlotIndex + 1) * slotWidth;
+
+    ctx.strokeStyle = isSelected
+      ? "rgba(255, 74, 112, 0.98)"
+      : (useChopPattern ? "rgba(119, 255, 146, 0.92)" : "rgba(41, 231, 255, 0.92)");
+    ctx.lineWidth = isSelected ? 2.2 : 1.5;
+    ctx.beginPath();
 
     for (let px = Math.floor(visualStartX); px < Math.floor(visualEndX); px++) {
       const rawLocalPos = (px - visualStartX) / slotWidth;
@@ -1064,9 +1109,9 @@ function drawWaveformCanvas(canvas, buffer, recipe, useChopPattern, startSlot = 
       ctx.moveTo(px, y1);
       ctx.lineTo(px, y2);
     }
-  }
 
-  ctx.stroke();
+    ctx.stroke();
+  }
 
   ctx.strokeStyle = "rgba(255, 255, 255, 0.16)";
   ctx.lineWidth = 1;
@@ -1079,9 +1124,6 @@ function drawWaveformCanvas(canvas, buffer, recipe, useChopPattern, startSlot = 
     ctx.stroke();
   }
 
-  // Strong musical bar markers.
-  // 16-slice mode: markers at 0, 4, 8, 12, 16.
-  // 32-slice mode: each visible row gets start, middle, and end markers.
   const quarterSize = sliceCount / 4;
   const markerSlots = [
     0,
@@ -2531,43 +2573,76 @@ function pickDifferentLoopForPendingContribution() {
   render();
 }
 
+function convertFlagMapForGrid(oldFlagMap, oldSliceCount, newSliceCount) {
+  const newFlagMap = {};
+  const incomingFlagMap = oldFlagMap || {};
+
+  if (newSliceCount === oldSliceCount) {
+    for (const key in incomingFlagMap) {
+      if (incomingFlagMap[key] === true) {
+        newFlagMap[key] = true;
+      }
+    }
+
+    return newFlagMap;
+  }
+
+  if (newSliceCount > oldSliceCount) {
+    for (let newSlotIndex = 0; newSlotIndex < newSliceCount; newSlotIndex++) {
+      const oldSlotIndex = Math.floor((newSlotIndex * oldSliceCount) / newSliceCount);
+
+      if (incomingFlagMap[oldSlotIndex] === true) {
+        newFlagMap[newSlotIndex] = true;
+      }
+    }
+  } else {
+    for (let newSlotIndex = 0; newSlotIndex < newSliceCount; newSlotIndex++) {
+      const oldStart = Math.floor((newSlotIndex * oldSliceCount) / newSliceCount);
+      const oldEnd = Math.ceil(((newSlotIndex + 1) * oldSliceCount) / newSliceCount);
+
+      for (let oldSlotIndex = oldStart; oldSlotIndex < oldEnd; oldSlotIndex++) {
+        if (incomingFlagMap[oldSlotIndex] === true) {
+          newFlagMap[newSlotIndex] = true;
+          break;
+        }
+      }
+    }
+  }
+
+  return newFlagMap;
+}
+
 function convertChopRecipe(oldRecipe, newSliceCount) {
   const oldSliceCount = oldRecipe.slices;
   const oldPattern = oldRecipe.pattern;
   const newPattern = [];
 
-  // Same size: keep exactly as-is
   if (oldSliceCount === newSliceCount) {
     return {
       slices: newSliceCount,
-      pattern: oldPattern.slice()
+      pattern: oldPattern.slice(),
+      stutter: convertFlagMapForGrid(oldRecipe.stutter, oldSliceCount, newSliceCount),
+      silent: convertFlagMapForGrid(oldRecipe.silent, oldSliceCount, newSliceCount),
+      transform: convertFlagMapForGrid(oldRecipe.transform, oldSliceCount, newSliceCount),
+      halfSpeed: convertFlagMapForGrid(oldRecipe.halfSpeed, oldSliceCount, newSliceCount)
     };
   }
 
-  // Going UP in resolution, e.g. 4 -> 8
-  // Expand each old slice into its matching smaller pieces.
   if (newSliceCount > oldSliceCount) {
     for (let newSlotIndex = 0; newSlotIndex < newSliceCount; newSlotIndex++) {
       const oldSlotFloat = (newSlotIndex * oldSliceCount) / newSliceCount;
       const oldSlotIndex = Math.floor(oldSlotFloat);
       const positionInsideOldSlot = oldSlotFloat - oldSlotIndex;
-
       const oldSourceSlice = oldPattern[Math.min(oldSlotIndex, oldPattern.length - 1)];
-
       const newSourceFloat = ((oldSourceSlice + positionInsideOldSlot) * newSliceCount) / oldSliceCount;
       const newSourceSlice = Math.floor(newSourceFloat);
 
       newPattern.push(Math.max(0, Math.min(newSliceCount - 1, newSourceSlice)));
     }
-  }
-
-  // Going DOWN in resolution, e.g. 8 -> 4
-  // Use the first old slot covered by each new slot as the best simple estimate.
-  else {
+  } else {
     for (let newSlotIndex = 0; newSlotIndex < newSliceCount; newSlotIndex++) {
       const oldSlotIndex = Math.floor((newSlotIndex * oldSliceCount) / newSliceCount);
       const oldSourceSlice = oldPattern[Math.min(oldSlotIndex, oldPattern.length - 1)];
-
       const newSourceSlice = Math.floor((oldSourceSlice * newSliceCount) / oldSliceCount);
 
       newPattern.push(Math.max(0, Math.min(newSliceCount - 1, newSourceSlice)));
@@ -2576,7 +2651,11 @@ function convertChopRecipe(oldRecipe, newSliceCount) {
 
   return {
     slices: newSliceCount,
-    pattern: newPattern
+    pattern: newPattern,
+    stutter: convertFlagMapForGrid(oldRecipe.stutter, oldSliceCount, newSliceCount),
+    silent: convertFlagMapForGrid(oldRecipe.silent, oldSliceCount, newSliceCount),
+    transform: convertFlagMapForGrid(oldRecipe.transform, oldSliceCount, newSliceCount),
+    halfSpeed: convertFlagMapForGrid(oldRecipe.halfSpeed, oldSliceCount, newSliceCount)
   };
 }
 
@@ -2609,6 +2688,78 @@ async function changeChopGrid(loopId, sliceCount) {
   updateChopPlayhead(loopId, newVisualSlot);
 }
 
+
+function advanceSelectedChopSlot(loopId) {
+  const recipe = getChopRecipe(loopId);
+  selectedChopSlotIndex = (selectedChopSlotIndex + 1) % recipe.slices;
+  playingChopSlotByLoopId.set(loopId, selectedChopSlotIndex);
+}
+
+function getSlotIndexFromPointerEvent(canvas, event) {
+  const startSlot = Number(canvas.dataset.startSlot);
+  const endSlot = Number(canvas.dataset.endSlot);
+  const visibleSlots = Math.max(1, endSlot - startSlot);
+  const rect = canvas.getBoundingClientRect();
+  const pointerX = Math.max(0, Math.min(rect.width - 1, event.clientX - rect.left));
+  const localSlot = Math.floor((pointerX / Math.max(1, rect.width)) * visibleSlots);
+
+  return Math.max(startSlot, Math.min(endSlot - 1, startSlot + localSlot));
+}
+
+function getFlagAtSlot(flagMap, slotIndex) {
+  return flagMap && flagMap[slotIndex] === true;
+}
+
+function setFlagAtSlot(flagMap, slotIndex, value) {
+  if (value) {
+    flagMap[slotIndex] = true;
+  } else {
+    delete flagMap[slotIndex];
+  }
+}
+
+function swapChopSlots(loopId, firstSlotIndex, secondSlotIndex) {
+  if (firstSlotIndex === secondSlotIndex) {
+    selectedChopSlotIndex = firstSlotIndex;
+    renderChopEditor();
+    return;
+  }
+
+  const recipe = getChopRecipe(loopId);
+  const flagKeys = ["stutter", "silent", "transform", "halfSpeed"];
+
+  flagKeys.forEach(flagKey => {
+    if (!recipe[flagKey]) recipe[flagKey] = {};
+  });
+
+  const firstPattern = recipe.pattern[firstSlotIndex];
+  const secondPattern = recipe.pattern[secondSlotIndex];
+  const firstFlags = {};
+  const secondFlags = {};
+
+  flagKeys.forEach(flagKey => {
+    firstFlags[flagKey] = getFlagAtSlot(recipe[flagKey], firstSlotIndex);
+    secondFlags[flagKey] = getFlagAtSlot(recipe[flagKey], secondSlotIndex);
+  });
+
+  recipe.pattern[firstSlotIndex] = secondPattern;
+  recipe.pattern[secondSlotIndex] = firstPattern;
+
+  flagKeys.forEach(flagKey => {
+    setFlagAtSlot(recipe[flagKey], firstSlotIndex, secondFlags[flagKey]);
+    setFlagAtSlot(recipe[flagKey], secondSlotIndex, firstFlags[flagKey]);
+  });
+
+  setChopRecipe(loopId, recipe);
+  refreshPlayingLoopAfterChopEdit(loopId);
+
+  selectedChopSlotIndex = secondSlotIndex;
+  playingChopSlotByLoopId.set(loopId, selectedChopSlotIndex);
+
+  renderChopEditor();
+  render();
+}
+
 function setChopSlot(loopId, targetSlotIndex, sourceSliceIndex) {
   const recipe = getChopRecipe(loopId);
 
@@ -2616,7 +2767,8 @@ function setChopSlot(loopId, targetSlotIndex, sourceSliceIndex) {
   setChopRecipe(loopId, recipe);
   refreshPlayingLoopAfterChopEdit(loopId);
 
-  selectedChopSlotIndex = Math.min(targetSlotIndex + 1, recipe.slices - 1);
+  selectedChopSlotIndex = targetSlotIndex;
+  advanceSelectedChopSlot(loopId);
 
   renderChopEditor();
   render();
@@ -2633,6 +2785,7 @@ function toggleReverseSelectedChop(loopId) {
 
   setChopRecipe(loopId, recipe);
   refreshPlayingLoopAfterChopEdit(loopId);
+  advanceSelectedChopSlot(loopId);
 
   renderChopEditor();
   render();
@@ -2646,6 +2799,41 @@ function toggleSilentSelectedChop(loopId) {
 
   setChopRecipe(loopId, recipe);
   refreshPlayingLoopAfterChopEdit(loopId);
+  advanceSelectedChopSlot(loopId);
+
+  renderChopEditor();
+  render();
+}
+
+function toggleTransformSelectedChop(loopId) {
+  const recipe = getChopRecipe(loopId);
+
+  if (!recipe.transform) {
+    recipe.transform = {};
+  }
+
+  recipe.transform[selectedChopSlotIndex] = recipe.transform[selectedChopSlotIndex] !== true;
+
+  setChopRecipe(loopId, recipe);
+  refreshPlayingLoopAfterChopEdit(loopId);
+  advanceSelectedChopSlot(loopId);
+
+  renderChopEditor();
+  render();
+}
+
+function toggleHalfSpeedSelectedChop(loopId) {
+  const recipe = getChopRecipe(loopId);
+
+  if (!recipe.halfSpeed) {
+    recipe.halfSpeed = {};
+  }
+
+  recipe.halfSpeed[selectedChopSlotIndex] = recipe.halfSpeed[selectedChopSlotIndex] !== true;
+
+  setChopRecipe(loopId, recipe);
+  refreshPlayingLoopAfterChopEdit(loopId);
+  advanceSelectedChopSlot(loopId);
 
   renderChopEditor();
   render();
@@ -2681,6 +2869,7 @@ function buildChopRowsHtml(loop, recipe, mode) {
   for (let rowStart = 0; rowStart < recipe.slices; rowStart += rowSize) {
     const rowEnd = Math.min(recipe.slices, rowStart + rowSize);
     const rowIndex = rowStart / rowSize;
+    const visibleSlots = rowEnd - rowStart;
 
     let buttonsHtml = "";
 
@@ -2688,13 +2877,17 @@ function buildChopRowsHtml(loop, recipe, mode) {
       if (mode === "top") {
         const sourceSliceIndex = recipe.pattern[slotIndex];
         const selectedClass = slotIndex === selectedChopSlotIndex ? " selected" : "";
+        const draggingClass = slotIndex === draggedChopSlotIndex ? " dragging-source" : "";
         const isSilent = recipe.silent && recipe.silent[slotIndex] === true;
-        const stutterText = recipe.stutter && recipe.stutter[slotIndex] === true ? "≋ " : "";
-        const slotText = isSilent ? "X" : `${stutterText}${sourceSliceIndex + 1}`;
+        const isStutter = recipe.stutter && recipe.stutter[slotIndex] === true;
+        const isTransform = recipe.transform && recipe.transform[slotIndex] === true;
+        const isHalfSpeed = recipe.halfSpeed && recipe.halfSpeed[slotIndex] === true;
+        const fxText = `${isStutter ? "≋ " : ""}${isTransform ? "◒ " : ""}${isHalfSpeed ? "½ " : ""}`;
+        const slotText = isSilent ? "X" : `${fxText}${sourceSliceIndex + 1}`;
 
         buttonsHtml += `
           <button
-            class="chop-slot${selectedClass}${isSilent ? " silent" : ""}"
+            class="chop-slot${selectedClass}${draggingClass}${isSilent ? " silent" : ""}${isTransform ? " transform" : ""}${isHalfSpeed ? " half-speed" : ""}"
             data-target-slot="${slotIndex}"
             data-loop-id="${loop.id}"
             data-slot-index="${slotIndex}"
@@ -2714,33 +2907,160 @@ function buildChopRowsHtml(loop, recipe, mode) {
       }
     }
 
-    html += `
-      <canvas
-        class="chop-waveform ${mode === "top" ? "top-waveform" : "bottom-waveform"}"
-        data-loop-id="${loop.id}"
-        data-start-slot="${rowStart}"
-        data-end-slot="${rowEnd}">
-      </canvas>
+    const selectedFrameHtml = mode === "top" && selectedChopSlotIndex >= rowStart && selectedChopSlotIndex < rowEnd
+      ? `<div
+          class="selected-slot-frame"
+          style="left:${((selectedChopSlotIndex - rowStart) / visibleSlots) * 100}%; width:${100 / visibleSlots}%;">
+        </div>`
+      : "";
 
-    ${mode === "top" ? `
+    html += `
       <div
-        class="chop-playhead"
+        class="chop-row-block ${mode === "top" ? "top-row-block" : "bottom-row-block"}"
         data-loop-id="${loop.id}"
         data-row-index="${rowIndex}"
-        style="top:${86 + rowIndex * 118}px;">
-      </div>
-      ` : ""}
-      <div
-        class="chop-lane ${mode === "top" ? "top-lane" : "bottom-lane"}"
-        data-loop-id="${loop.id}"
-        data-row-index="${rowIndex}"
-        style="grid-template-columns: repeat(${rowEnd - rowStart}, 1fr);">
-        ${buttonsHtml}
+        data-row-start="${rowStart}"
+        data-row-end="${rowEnd}">
+        ${selectedFrameHtml}
+        <canvas
+          class="chop-waveform ${mode === "top" ? "top-waveform" : "bottom-waveform"}"
+          data-loop-id="${loop.id}"
+          data-start-slot="${rowStart}"
+          data-end-slot="${rowEnd}">
+        </canvas>
+
+        ${mode === "top" ? `
+          <div
+            class="chop-playhead"
+            data-loop-id="${loop.id}"
+            data-row-index="${rowIndex}">
+          </div>
+        ` : ""}
+
+        <div
+          class="chop-lane ${mode === "top" ? "top-lane" : "bottom-lane"}"
+          data-loop-id="${loop.id}"
+          data-row-index="${rowIndex}"
+          style="grid-template-columns: repeat(${visibleSlots}, 1fr);">
+          ${buttonsHtml}
+        </div>
       </div>
     `;
   }
 
   return html;
+}
+
+function getSlotIndexFromRowBlockPointer(rowBlock, event) {
+  const startSlot = Number(rowBlock.dataset.rowStart);
+  const endSlot = Number(rowBlock.dataset.rowEnd);
+  const visibleSlots = Math.max(1, endSlot - startSlot);
+  const rect = rowBlock.getBoundingClientRect();
+  const pointerX = Math.max(0, Math.min(rect.width - 1, event.clientX - rect.left));
+  const localSlot = Math.floor((pointerX / Math.max(1, rect.width)) * visibleSlots);
+
+  return Math.max(startSlot, Math.min(endSlot - 1, startSlot + localSlot));
+}
+
+function getTopRowBlockFromPoint(clientX, clientY) {
+  const elements = document.elementsFromPoint(clientX, clientY);
+  return elements.find(element => element.classList && element.classList.contains("top-row-block")) || null;
+}
+
+function removeChopDragGhost() {
+  if (chopDragGhostEl) {
+    chopDragGhostEl.remove();
+  }
+
+  chopDragGhostEl = null;
+  document.querySelectorAll(".drag-target-slot").forEach(element => element.classList.remove("drag-target-slot"));
+  document.body.classList.remove("chop-dragging-active");
+}
+
+function updateChopDragGhost(event) {
+  if (!activeChopDrag) return;
+  if (event.cancelable) event.preventDefault();
+
+  const moveX = event.clientX - activeChopDrag.startClientX;
+  const moveY = event.clientY - activeChopDrag.startClientY;
+  const movedEnough = Math.abs(moveX) > 5 || Math.abs(moveY) > 5;
+
+  if (!activeChopDrag.hasMoved && !movedEnough) {
+    return;
+  }
+
+  if (!activeChopDrag.hasMoved) {
+    activeChopDrag.hasMoved = true;
+    draggedChopSlotIndex = activeChopDrag.sourceMode === "top" ? activeChopDrag.slotIndex : null;
+    document.body.classList.add("chop-dragging-active");
+
+    chopDragGhostEl = document.createElement("div");
+    chopDragGhostEl.className = `chop-drag-ghost ${activeChopDrag.sourceMode === "bottom" ? "source-drag-ghost" : ""}`;
+    chopDragGhostEl.textContent = activeChopDrag.sourceMode === "bottom"
+      ? `${activeChopDrag.sourceSliceIndex + 1}`
+      : `${activeChopDrag.slotIndex + 1}`;
+    chopDragGhostEl.style.width = `${activeChopDrag.slotWidth}px`;
+    chopDragGhostEl.style.height = `${activeChopDrag.slotHeight}px`;
+    document.body.appendChild(chopDragGhostEl);
+  }
+
+  if (chopDragGhostEl) {
+    chopDragGhostEl.style.left = `${event.clientX - activeChopDrag.slotWidth / 2}px`;
+    chopDragGhostEl.style.top = `${event.clientY - activeChopDrag.slotHeight / 2}px`;
+  }
+
+  document.querySelectorAll(".drag-target-slot").forEach(element => element.classList.remove("drag-target-slot"));
+
+  const rowBlock = getTopRowBlockFromPoint(event.clientX, event.clientY);
+  chopDragTargetSlotIndex = null;
+
+  if (rowBlock) {
+    const targetSlotIndex = getSlotIndexFromRowBlockPointer(rowBlock, event);
+    chopDragTargetSlotIndex = targetSlotIndex;
+    rowBlock.querySelector(`[data-target-slot="${targetSlotIndex}"]`)?.classList.add("drag-target-slot");
+  }
+}
+
+function finishChopDrag(loopId, event) {
+  if (!activeChopDrag) return;
+
+  updateChopDragGhost(event);
+
+  const sourceMode = activeChopDrag.sourceMode || "top";
+  const startSlotIndex = activeChopDrag.slotIndex;
+  const sourceSliceIndex = activeChopDrag.sourceSliceIndex;
+  const endSlotIndex = chopDragTargetSlotIndex;
+  const wasRealDrag = activeChopDrag.hasMoved;
+
+  removeChopDragGhost();
+
+  activeChopDrag = null;
+  draggedChopSlotIndex = null;
+  chopDragTargetSlotIndex = null;
+
+  if (sourceMode === "bottom") {
+    if (wasRealDrag && endSlotIndex !== null) {
+      setChopSlot(loopId, endSlotIndex, sourceSliceIndex);
+      return;
+    }
+
+    if (wasRealDrag) {
+      renderChopEditor();
+      return;
+    }
+
+    setChopSlot(loopId, selectedChopSlotIndex, sourceSliceIndex);
+    return;
+  }
+
+  if (wasRealDrag && endSlotIndex !== null && endSlotIndex !== startSlotIndex) {
+    swapChopSlots(loopId, startSlotIndex, endSlotIndex);
+    return;
+  }
+
+  selectedChopSlotIndex = startSlotIndex;
+  playingChopSlotByLoopId.set(loopId, selectedChopSlotIndex);
+  renderChopEditor();
 }
 
 function renderChopEditor() {
@@ -2783,28 +3103,34 @@ function renderChopEditor() {
       <button class="${recipe.slices === 32 ? "selected" : ""}" data-grid-size="32" type="button">32</button>
     </div>
 
-    <div class="chop-lane-wrap">
+    <div class="chop-section-divider"></div>
+    <div class="chop-lane-wrap rearranged-loop-section">
       <p class="loop-meta">${t("rearrangedLoop")}</p>
+      <p class="editing-slot-label">Editing slot ${selectedChopSlotIndex + 1}</p>
       ${topRowsHtml}
     </div>
 
-    <div class="chop-lane-wrap">
+    <div class="chop-section-divider"></div>
+    <div class="chop-lane-wrap original-loop-section">
       <p class="loop-meta">${t("originalLoop")}</p>
       ${bottomRowsHtml}
     </div>
 
+    <div class="chop-section-divider"></div>
     <div class="chop-actions">
+      <button class="secondary reverse-chop-button" type="button"><span class="chop-action-symbol">≋</span>${t("reverseSelected")}</button>
+      <button class="secondary mute-chop-button" type="button"><span class="chop-action-symbol">✕</span>${t("muteSelected")}</button>
+      <button class="secondary transform-chop-button" type="button"><span class="chop-action-symbol">◒</span>${t("transformSelected")}</button>
+      <button class="secondary half-speed-chop-button" type="button"><span class="chop-action-symbol">½</span>${t("halfSpeedSelected")}</button>
+      <button class="secondary random-chop-button" type="button"><span class="chop-action-symbol">⇄</span>${t("random")}</button>
       <button class="secondary reset-chop-button" type="button">${t("reset")}</button>
-      <button class="secondary random-chop-button" type="button">${t("random")}</button>
-      <button class="secondary reverse-chop-button" type="button">${t("reverseSelected")}</button>
-      <button class="secondary mute-chop-button" type="button">${t("muteSelected")}</button>
+      <button class="done-chop-button" type="button">${t("done")}</button>
       <button
         class="secondary pick-different-loop-button ${canCurrentUserReplaceLoop(loop.id) || pendingContributionLoopId === loop.id ? "" : "disabled-action-button"}"
         type="button"
         aria-disabled="${canCurrentUserReplaceLoop(loop.id) || pendingContributionLoopId === loop.id ? "false" : "true"}">
         ${t("chooseDifferentSound")}
       </button>
-      <button class="done-chop-button" type="button">${t("done")}</button>
     </div>
   `;
 
@@ -2817,23 +3143,112 @@ function renderChopEditor() {
   chopEditorEl.querySelector(".random-chop-button").addEventListener("click", () => randomizeChop(loop.id));
   chopEditorEl.querySelector(".reverse-chop-button").addEventListener("click", () => toggleReverseSelectedChop(loop.id));
   chopEditorEl.querySelector(".mute-chop-button").addEventListener("click", () => toggleSilentSelectedChop(loop.id));
+  chopEditorEl.querySelector(".transform-chop-button").addEventListener("click", () => toggleTransformSelectedChop(loop.id));
+  chopEditorEl.querySelector(".half-speed-chop-button").addEventListener("click", () => toggleHalfSpeedSelectedChop(loop.id));
   chopEditorEl.querySelector(".pick-different-loop-button").addEventListener("click", () => handleChooseDifferentSound(loop.id));
 
   chopEditorEl.querySelectorAll("[data-grid-size]").forEach(button => {
     button.addEventListener("click", () => changeChopGrid(loop.id, Number(button.dataset.gridSize)));
   });
 
+  function beginTopSlotInteraction(slotIndex, event, sourceElement) {
+    event.preventDefault();
+
+    const rowBlock = sourceElement.closest(".top-row-block");
+    const rowRect = rowBlock ? rowBlock.getBoundingClientRect() : sourceElement.getBoundingClientRect();
+    const recipe = getChopRecipe(loop.id);
+    const rowSize = recipe.slices === 32 ? 16 : recipe.slices;
+
+    activeChopDrag = {
+      sourceMode: "top",
+      slotIndex: slotIndex,
+      startClientX: event.clientX,
+      startClientY: event.clientY,
+      slotWidth: rowRect.width / rowSize,
+      slotHeight: rowRect.height,
+      hasMoved: false
+    };
+
+    if (sourceElement.setPointerCapture) {
+      try {
+        sourceElement.setPointerCapture(event.pointerId);
+      } catch (err) {}
+    }
+
+    window.addEventListener("pointermove", updateChopDragGhost, { passive: false });
+    window.addEventListener("pointerup", pointerUpEvent => {
+      window.removeEventListener("pointermove", updateChopDragGhost);
+      finishChopDrag(loop.id, pointerUpEvent);
+    }, { once: true });
+    window.addEventListener("pointercancel", () => {
+      window.removeEventListener("pointermove", updateChopDragGhost);
+      removeChopDragGhost();
+      activeChopDrag = null;
+      draggedChopSlotIndex = null;
+      chopDragTargetSlotIndex = null;
+    }, { once: true });
+  }
+
+  function beginBottomSourceInteraction(sourceSliceIndex, event, sourceElement) {
+    event.preventDefault();
+
+    const rowBlock = sourceElement.closest(".bottom-row-block");
+    const rowRect = rowBlock ? rowBlock.getBoundingClientRect() : sourceElement.getBoundingClientRect();
+    const recipe = getChopRecipe(loop.id);
+    const rowSize = recipe.slices === 32 ? 16 : recipe.slices;
+
+    activeChopDrag = {
+      sourceMode: "bottom",
+      sourceSliceIndex: sourceSliceIndex,
+      slotIndex: selectedChopSlotIndex,
+      startClientX: event.clientX,
+      startClientY: event.clientY,
+      slotWidth: rowRect.width / rowSize,
+      slotHeight: rowRect.height,
+      hasMoved: false
+    };
+
+    if (sourceElement.setPointerCapture) {
+      try {
+        sourceElement.setPointerCapture(event.pointerId);
+      } catch (err) {}
+    }
+
+    window.addEventListener("pointermove", updateChopDragGhost, { passive: false });
+    window.addEventListener("pointerup", pointerUpEvent => {
+      window.removeEventListener("pointermove", updateChopDragGhost);
+      finishChopDrag(loop.id, pointerUpEvent);
+    }, { once: true });
+    window.addEventListener("pointercancel", () => {
+      window.removeEventListener("pointermove", updateChopDragGhost);
+      removeChopDragGhost();
+      activeChopDrag = null;
+      draggedChopSlotIndex = null;
+      chopDragTargetSlotIndex = null;
+    }, { once: true });
+  }
+
   chopEditorEl.querySelectorAll("[data-target-slot]").forEach(button => {
-    button.addEventListener("click", () => {
-      selectedChopSlotIndex = Number(button.dataset.targetSlot);
-      renderChopEditor();
+    button.addEventListener("pointerdown", event => {
+      beginTopSlotInteraction(Number(button.dataset.targetSlot), event, button);
+    });
+  });
+
+  chopEditorEl.querySelectorAll(".top-waveform").forEach(canvas => {
+    canvas.addEventListener("pointerdown", event => {
+      beginTopSlotInteraction(getSlotIndexFromPointerEvent(canvas, event), event, canvas);
+    });
+  });
+
+  chopEditorEl.querySelectorAll(".bottom-waveform").forEach(canvas => {
+    canvas.addEventListener("pointerdown", event => {
+      beginBottomSourceInteraction(getSlotIndexFromPointerEvent(canvas, event), event, canvas);
     });
   });
 
   chopEditorEl.querySelectorAll("[data-source-slice]").forEach(button => {
-    button.addEventListener("click", () => {
-      const sourceSliceIndex = Number(button.dataset.sourceSlice);
-      setChopSlot(loop.id, selectedChopSlotIndex, sourceSliceIndex);
+    button.addEventListener("pointerdown", event => {
+      beginBottomSourceInteraction(Number(button.dataset.sourceSlice), event, button);
     });
   });
 
@@ -2943,24 +3358,29 @@ function connectOfflineMaster(offlineContext) {
   return masterNode;
 }
 
-function scheduleOfflineSegment(offlineContext, masterNode, buffer, loop, sourceOffset, startTime, duration, shouldFadeIn, shouldFadeOut) {
+function scheduleOfflineSegment(offlineContext, masterNode, buffer, loop, sourceOffset, startTime, duration, shouldFadeIn, shouldFadeOut, playbackRate = 1) {
   if (duration <= 0.005) return;
 
   const source = offlineContext.createBufferSource();
   const gainNode = offlineContext.createGain();
 
   source.buffer = buffer;
+  source.playbackRate.value = playbackRate;
 
-  const fadeTime = Math.min(0.006, duration * 0.35);
+  const forceHalfSpeedFade = playbackRate < 1;
+  const fadeTime = Math.min(forceHalfSpeedFade ? 0.012 : 0.006, duration * 0.35);
+  const targetGain = loop.gain * getLoopVolume(loop.id);
+  const useFadeIn = shouldFadeIn || forceHalfSpeedFade;
+  const useFadeOut = shouldFadeOut || forceHalfSpeedFade;
 
-  gainNode.gain.setValueAtTime(shouldFadeIn ? 0 : loop.gain * getLoopVolume(loop.id), startTime);
+  gainNode.gain.setValueAtTime(useFadeIn ? 0 : targetGain, startTime);
 
-  if (shouldFadeIn) {
-    gainNode.gain.linearRampToValueAtTime(loop.gain * getLoopVolume(loop.id), startTime + fadeTime);
+  if (useFadeIn) {
+    gainNode.gain.linearRampToValueAtTime(targetGain, startTime + fadeTime);
   }
 
-  if (shouldFadeOut) {
-    gainNode.gain.setValueAtTime(loop.gain * getLoopVolume(loop.id), Math.max(startTime, startTime + duration - fadeTime));
+  if (useFadeOut) {
+    gainNode.gain.setValueAtTime(targetGain, Math.max(startTime, startTime + duration - fadeTime));
     gainNode.gain.linearRampToValueAtTime(0, startTime + duration);
   }
 
@@ -2968,7 +3388,9 @@ function scheduleOfflineSegment(offlineContext, masterNode, buffer, loop, source
   gainNode.connect(masterNode);
 
   try {
-    source.start(startTime, sourceOffset, duration);
+    const sourceReadDuration = duration * playbackRate;
+    source.start(startTime, sourceOffset, sourceReadDuration);
+    source.stop(startTime + duration);
   } catch (err) {
     console.warn("Could not schedule offline export segment", err);
   }
@@ -3008,6 +3430,9 @@ function scheduleOfflineChoppedLoop(offlineContext, masterNode, loop, buffer, ex
     const sourceSliceIndex = recipe.pattern[slotIndex];
     const sourceOffset = sourceSliceIndex * sliceDuration;
     const isStutter = recipe.stutter && recipe.stutter[slotIndex] === true;
+    const isTransform = recipe.transform && recipe.transform[slotIndex] === true;
+    const isHalfSpeed = recipe.halfSpeed && recipe.halfSpeed[slotIndex] === true;
+    const playbackRate = isHalfSpeed ? 0.5 : 1;
 
     const previousSlotIndex = (slotIndex - 1 + recipe.slices) % recipe.slices;
     const nextSlotIndex = (slotIndex + 1) % recipe.slices;
@@ -3024,6 +3449,8 @@ function scheduleOfflineChoppedLoop(offlineContext, masterNode, loop, buffer, ex
       const repeatCount = Math.ceil(duration / repeatDuration);
 
       for (let repeatIndex = 0; repeatIndex < repeatCount; repeatIndex++) {
+        if (isTransform && repeatIndex % 2 === 1) continue;
+
         const segmentStartTime = startTime + (repeatIndex * repeatDuration);
         const remainingDuration = (startTime + duration) - segmentStartTime;
         const segmentDuration = Math.min(repeatDuration, remainingDuration);
@@ -3037,7 +3464,33 @@ function scheduleOfflineChoppedLoop(offlineContext, masterNode, loop, buffer, ex
           segmentStartTime,
           segmentDuration,
           true,
-          true
+          true,
+          playbackRate
+        );
+      }
+    } else if (isTransform) {
+      const gateCount = 8;
+      const gateDuration = duration / gateCount;
+
+      for (let gateIndex = 0; gateIndex < gateCount; gateIndex++) {
+        if (gateIndex % 2 === 1) continue;
+
+        const segmentStartTime = startTime + (gateIndex * gateDuration);
+        const segmentSourceOffset = sourceOffset + (gateIndex * gateDuration * playbackRate);
+        const remainingDuration = (startTime + duration) - segmentStartTime;
+        const segmentDuration = Math.min(gateDuration, remainingDuration);
+
+        scheduleOfflineSegment(
+          offlineContext,
+          masterNode,
+          buffer,
+          loop,
+          segmentSourceOffset,
+          segmentStartTime,
+          segmentDuration,
+          true,
+          true,
+          playbackRate
         );
       }
     } else {
@@ -3050,7 +3503,8 @@ function scheduleOfflineChoppedLoop(offlineContext, masterNode, loop, buffer, ex
         startTime,
         duration,
         !naturalFromPrevious,
-        !naturalToNext
+        !naturalToNext,
+        playbackRate
       );
     }
   }
@@ -3230,38 +3684,35 @@ function stopLoopSource(loopId) {
   activeGainNodesByLoopId.delete(loopId);
 }
 
-function scheduleChopSlice(active, sourceSliceIndex, playTime, sourceOffset, duration, shouldFadeIn, shouldFadeOut, slotIndexForVisual, isStutter) {
+function scheduleChopSlice(active, sourceSliceIndex, playTime, sourceOffset, duration, shouldFadeIn, shouldFadeOut, slotIndexForVisual, isStutter, isTransform = false, isHalfSpeed = false) {
   if (!active || active.stopped) return;
   if (duration <= 0.005) return;
 
   const tinyChunkDuration = active.buffer.duration / 64;
   const useStutter = isStutter && tinyChunkDuration > 0.005;
-  const repeatDuration = useStutter ? Math.min(tinyChunkDuration, duration) : duration;
-  const repeatCount = useStutter ? Math.ceil(duration / repeatDuration) : 1;
+  const playbackRate = isHalfSpeed ? 0.5 : 1;
 
-  for (let repeatIndex = 0; repeatIndex < repeatCount; repeatIndex++) {
-    const segmentStartTime = playTime + (repeatIndex * repeatDuration);
-    const remainingDuration = (playTime + duration) - segmentStartTime;
-    const segmentDuration = Math.min(repeatDuration, remainingDuration);
-
-    if (segmentDuration <= 0.005) continue;
+  function scheduleOneSegment(segmentStartTime, segmentSourceOffset, segmentDuration, fadeThisIn, fadeThisOut) {
+    if (segmentDuration <= 0.005) return;
 
     const source = audioContext.createBufferSource();
     const sliceGain = audioContext.createGain();
 
     source.buffer = active.buffer;
+    source.playbackRate.value = playbackRate;
 
-    const fadeTime = Math.min(0.006, segmentDuration * 0.35);
-    const fadeThisIn = shouldFadeIn || useStutter;
-    const fadeThisOut = shouldFadeOut || useStutter;
+    const forceHalfSpeedFade = isHalfSpeed === true;
+    const fadeTime = Math.min(forceHalfSpeedFade ? 0.012 : 0.006, segmentDuration * 0.35);
+    const useFadeIn = fadeThisIn || forceHalfSpeedFade;
+    const useFadeOut = fadeThisOut || forceHalfSpeedFade;
 
-    sliceGain.gain.setValueAtTime(fadeThisIn ? 0 : 1, segmentStartTime);
+    sliceGain.gain.setValueAtTime(useFadeIn ? 0 : 1, segmentStartTime);
 
-    if (fadeThisIn) {
+    if (useFadeIn) {
       sliceGain.gain.linearRampToValueAtTime(1, segmentStartTime + fadeTime);
     }
 
-    if (fadeThisOut) {
+    if (useFadeOut) {
       sliceGain.gain.setValueAtTime(1, Math.max(segmentStartTime, segmentStartTime + segmentDuration - fadeTime));
       sliceGain.gain.linearRampToValueAtTime(0, segmentStartTime + segmentDuration);
     }
@@ -3270,18 +3721,9 @@ function scheduleChopSlice(active, sourceSliceIndex, playTime, sourceOffset, dur
     sliceGain.connect(active.gainNode);
 
     try {
-      source.start(segmentStartTime, sourceOffset, segmentDuration);
-
-      if (repeatIndex === 0) {
-        const delayUntilHeard = Math.max(0, (segmentStartTime - audioContext.currentTime) * 1000);
-
-        setTimeout(() => {
-          if (!active.stopped) {
-            updateChopPlayhead(active.loopId, slotIndexForVisual);
-          }
-        }, delayUntilHeard);
-      }
-
+      const sourceReadDuration = segmentDuration * playbackRate;
+      source.start(segmentStartTime, segmentSourceOffset, sourceReadDuration);
+      source.stop(segmentStartTime + segmentDuration);
     } catch (err) {
       console.warn("Could not schedule chop slice", err);
       return;
@@ -3293,6 +3735,45 @@ function scheduleChopSlice(active, sourceSliceIndex, playTime, sourceOffset, dur
       active.sources = active.sources.filter(item => item !== source);
     };
   }
+
+  if (useStutter) {
+    const repeatDuration = Math.min(tinyChunkDuration, duration);
+    const repeatCount = Math.ceil(duration / repeatDuration);
+
+    for (let repeatIndex = 0; repeatIndex < repeatCount; repeatIndex++) {
+      if (isTransform && repeatIndex % 2 === 1) continue;
+
+      const segmentStartTime = playTime + (repeatIndex * repeatDuration);
+      const remainingDuration = (playTime + duration) - segmentStartTime;
+      const segmentDuration = Math.min(repeatDuration, remainingDuration);
+
+      scheduleOneSegment(segmentStartTime, sourceOffset, segmentDuration, true, true);
+    }
+  } else if (isTransform) {
+    const gateCount = 8;
+    const gateDuration = duration / gateCount;
+
+    for (let gateIndex = 0; gateIndex < gateCount; gateIndex++) {
+      if (gateIndex % 2 === 1) continue;
+
+      const segmentStartTime = playTime + (gateIndex * gateDuration);
+      const segmentSourceOffset = sourceOffset + (gateIndex * gateDuration * playbackRate);
+      const remainingDuration = (playTime + duration) - segmentStartTime;
+      const segmentDuration = Math.min(gateDuration, remainingDuration);
+
+      scheduleOneSegment(segmentStartTime, segmentSourceOffset, segmentDuration, true, true);
+    }
+  } else {
+    scheduleOneSegment(playTime, sourceOffset, duration, shouldFadeIn, shouldFadeOut);
+  }
+
+  const delayUntilHeard = Math.max(0, (playTime - audioContext.currentTime) * 1000);
+
+  setTimeout(() => {
+    if (!active.stopped) {
+      updateChopPlayhead(active.loopId, slotIndexForVisual);
+    }
+  }, delayUntilHeard);
 }
 
 function scheduleChopPlayheadOnly(active, playTime, slotIndexForVisual) {
@@ -3325,6 +3806,8 @@ function runChopScheduler(active) {
   }
 
   const isStutter = active.recipe.stutter && active.recipe.stutter[active.nextSlotIndex] === true;
+  const isTransform = active.recipe.transform && active.recipe.transform[active.nextSlotIndex] === true;
+  const isHalfSpeed = active.recipe.halfSpeed && active.recipe.halfSpeed[active.nextSlotIndex] === true;
 
     const sourceOffset = sourceSliceIndex * active.sliceDuration;
 
@@ -3346,7 +3829,9 @@ function runChopScheduler(active) {
       !naturalFromPrevious,
       !naturalToNext,
       slotIndexForVisual,
-      isStutter
+      isStutter,
+      isTransform,
+      isHalfSpeed
     );
 
     active.nextSlotTime += active.sliceDuration;
@@ -3377,9 +3862,12 @@ function startChoppedLoopSource(loopId, buffer, gainNode, actualStartTime) {
 
   const firstSourceSliceIndex = recipe.pattern[startSlotIndex];
   const firstIsStutter = recipe.stutter && recipe.stutter[startSlotIndex] === true;
+  const firstIsTransform = recipe.transform && recipe.transform[startSlotIndex] === true;
+  const firstIsHalfSpeed = recipe.halfSpeed && recipe.halfSpeed[startSlotIndex] === true;
   const firstIsSilent = recipe.silent && recipe.silent[startSlotIndex] === true;
 
-  const firstSourceOffset = (firstSourceSliceIndex * sliceDuration) + offsetInsideSlot;
+  const firstPlaybackRate = firstIsHalfSpeed ? 0.5 : 1;
+  const firstSourceOffset = (firstSourceSliceIndex * sliceDuration) + (offsetInsideSlot * firstPlaybackRate);
   const firstDuration = sliceDuration - offsetInsideSlot;
 
   const previousSlotIndex = (startSlotIndex - 1 + recipe.slices) % recipe.slices;
@@ -3403,7 +3891,9 @@ function startChoppedLoopSource(loopId, buffer, gainNode, actualStartTime) {
       !naturalFromPrevious,
       !naturalToNext,
       startSlotIndex,
-      firstIsStutter
+      firstIsStutter,
+      firstIsTransform,
+      firstIsHalfSpeed
     );
   }
 
