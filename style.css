@@ -1518,3 +1518,60 @@ body {
   box-shadow: 0 0 20px rgba(119, 255, 146, 0.48);
   transform: translateY(-2px) scale(1.02);
 }
+
+/* Chop editor FX layout v26 */
+.chop-fx-actions {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.chop-workflow-actions {
+  grid-template-columns: 1fr 1fr;
+}
+
+.chop-action-divider {
+  margin-top: 12px;
+}
+
+.chop-fx-actions button {
+  font-size: 0.88rem;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.chop-slot.triplet-transform {
+  border-color: rgba(255, 146, 61, 0.56);
+  background: rgba(255, 146, 61, 0.13);
+}
+
+.chop-slot.double-speed {
+  border-color: rgba(41, 231, 255, 0.56);
+  background: rgba(41, 231, 255, 0.13);
+}
+
+@media (max-width: 420px) {
+  .chop-fx-actions {
+    gap: 8px;
+  }
+
+  .chop-fx-actions button {
+    font-size: 0.78rem;
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
+  .chop-action-symbol {
+    margin-right: 4px;
+  }
+}
+
+/* BeatSeed v27 - make slot FX symbols distinct from slice numbers */
+.slot-fx-symbol {
+  display: inline-block;
+  margin-right: 3px;
+  color: #ff9a2e;
+  font-weight: 900;
+}
+
+.slot-number-text {
+  color: inherit;
+}

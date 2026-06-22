@@ -39,10 +39,12 @@ const TEXT = {
     originalLoop: "Step 2: Tap a slice below to replace the selected slot",
     reset: "Reset",
     random: "Randomize",
-    reverseSelected: "Stutter Selected",
-    muteSelected: "Mute Selected",
-    transformSelected: "Transform Selected",
-    halfSpeedSelected: "Half Speed Selected",
+    reverseSelected: "Stutter",
+    muteSelected: "Mute",
+    transformSelected: "Transform",
+    tripletTransformSelected: "Triplet-Trans",
+    halfSpeedSelected: "Half Speed",
+    doubleSpeedSelected: "Double Speed",
     done: "Done",
     beatNamePrompt: "Beat name:",
     beatSaved: "Beat saved on this device.",
@@ -182,10 +184,12 @@ const TEXT = {
     originalLoop: "步驟 2：點選下方切片來替換目前選取的格子",
     reset: "重設",
     random: "隨機編排",
-    reverseSelected: "Stutter 所選",
-    muteSelected: "靜音所選",
-    transformSelected: "Transform 所選",
-    halfSpeedSelected: "Half Speed 所選",
+    reverseSelected: "Stutter",
+    muteSelected: "靜音",
+    transformSelected: "Transform",
+    tripletTransformSelected: "Triplet-Trans",
+    halfSpeedSelected: "Half Speed",
+    doubleSpeedSelected: "Double Speed",
     done: "完成",
     beatNamePrompt: "節拍名稱：",
     beatSaved: "節拍已儲存在此裝置。",
@@ -338,6 +342,7 @@ const LOOP_LIBRARY = [
   { id: "texture_08", name: "Electronic Glitches 04", file: "audio/loops/texture_8.mp3", type: "texture", tags: ["texture", "electronic", "hiphop", "lofi", "latin"], gain: 0.6 },
   { id: "texture_09", name: "Ethereal Strings 02", file: "audio/loops/texture_9.mp3", type: "texture", tags: ["texture", "electronic", "hiphop", "lofi", "latin"], gain: 0.6 },
   { id: "texture_10", name: "Ethereal Strings 03", file: "audio/loops/texture_10.mp3", type: "texture", tags: ["texture", "electronic", "hiphop", "lofi", "latin"], gain: 0.6 },
+  { id: "texture_11", name: "Pleasant Bleeps 01", file: "audio/loops/texture_11.mp3", type: "texture", tags: ["texture", "electronic", "hiphop", "lofi", "latin"], gain: 0.6 },
 
   { id: "vocal_01", name: "Vocoder Glitched 01", file: "audio/loops/vocal_1.mp3", type: "vocals", tags: ["vocals", "electronic", "hiphop", "lofi"], gain: 0.7 },
   { id: "vocal_02", name: "Vocoder Vox Glitched 02", file: "audio/loops/vocal_2.mp3", type: "vocals", tags: ["vocals", "electronic", "hiphop", "lofi"], gain: 0.7 },
@@ -860,7 +865,9 @@ function getChopRecipe(loopId) {
       stutter: {},
       silent: {},
       transform: {},
-      halfSpeed: {}
+      tripletTransform: {},
+      halfSpeed: {},
+      doubleSpeed: {}
     };
   }
 
@@ -908,6 +915,16 @@ function getChopRecipe(loopId) {
     }
   }
 
+  const tripletTransform = {};
+  if (recipe.tripletTransform) {
+    for (const key in recipe.tripletTransform) {
+      const cleanKey = Math.floor(Number(key));
+      if (!Number.isNaN(cleanKey) && cleanKey >= 0 && cleanKey < sliceCount) {
+        tripletTransform[cleanKey] = recipe.tripletTransform[key] === true;
+      }
+    }
+  }
+
   const halfSpeed = {};
   if (recipe.halfSpeed) {
     for (const key in recipe.halfSpeed) {
@@ -918,27 +935,43 @@ function getChopRecipe(loopId) {
     }
   }
 
-  return {
+  const doubleSpeed = {};
+  if (recipe.doubleSpeed) {
+    for (const key in recipe.doubleSpeed) {
+      const cleanKey = Math.floor(Number(key));
+      if (!Number.isNaN(cleanKey) && cleanKey >= 0 && cleanKey < sliceCount) {
+        doubleSpeed[cleanKey] = recipe.doubleSpeed[key] === true;
+      }
+    }
+  }
+
+  return enforceExclusiveSlotEffects({
     slices: sliceCount,
     pattern: pattern,
     stutter: stutter,
     silent: silent,
     transform: transform,
-    halfSpeed: halfSpeed
-  };
+    tripletTransform: tripletTransform,
+    halfSpeed: halfSpeed,
+    doubleSpeed: doubleSpeed
+  });
 }
 
 function setChopRecipe(loopId, recipe) {
   ensureBeatDataObjects();
 
-  beat.chops[loopId] = {
+  const cleanRecipe = enforceExclusiveSlotEffects({
     slices: recipe.slices,
     pattern: recipe.pattern.slice(),
     stutter: recipe.stutter || recipe.reverse || {},
     silent: recipe.silent || {},
     transform: recipe.transform || {},
-    halfSpeed: recipe.halfSpeed || {}
-  };
+    tripletTransform: recipe.tripletTransform || {},
+    halfSpeed: recipe.halfSpeed || {},
+    doubleSpeed: recipe.doubleSpeed || {}
+  });
+
+  beat.chops[loopId] = cleanRecipe;
 
   if (beat.restoredOriginalLoops) {
     beat.restoredOriginalLoops[loopId] = false;
@@ -964,7 +997,9 @@ function resetChopRecipe(loopId, sliceCount = DEFAULT_CHOP_SLICES) {
     stutter: {},
     silent: {},
     transform: {},
-    halfSpeed: {}
+    tripletTransform: {},
+    halfSpeed: {},
+    doubleSpeed: {}
   });
 }
 
@@ -976,7 +1011,9 @@ function hasCustomChop(loopId) {
     if (recipe.stutter && recipe.stutter[i] === true) return true;
     if (recipe.silent && recipe.silent[i] === true) return true;
     if (recipe.transform && recipe.transform[i] === true) return true;
+    if (recipe.tripletTransform && recipe.tripletTransform[i] === true) return true;
     if (recipe.halfSpeed && recipe.halfSpeed[i] === true) return true;
+    if (recipe.doubleSpeed && recipe.doubleSpeed[i] === true) return true;
   }
 
   return false;
@@ -2618,14 +2655,16 @@ function convertChopRecipe(oldRecipe, newSliceCount) {
   const newPattern = [];
 
   if (oldSliceCount === newSliceCount) {
-    return {
+    return enforceExclusiveSlotEffects({
       slices: newSliceCount,
       pattern: oldPattern.slice(),
       stutter: convertFlagMapForGrid(oldRecipe.stutter, oldSliceCount, newSliceCount),
       silent: convertFlagMapForGrid(oldRecipe.silent, oldSliceCount, newSliceCount),
       transform: convertFlagMapForGrid(oldRecipe.transform, oldSliceCount, newSliceCount),
-      halfSpeed: convertFlagMapForGrid(oldRecipe.halfSpeed, oldSliceCount, newSliceCount)
-    };
+      tripletTransform: convertFlagMapForGrid(oldRecipe.tripletTransform, oldSliceCount, newSliceCount),
+      halfSpeed: convertFlagMapForGrid(oldRecipe.halfSpeed, oldSliceCount, newSliceCount),
+      doubleSpeed: convertFlagMapForGrid(oldRecipe.doubleSpeed, oldSliceCount, newSliceCount)
+    });
   }
 
   if (newSliceCount > oldSliceCount) {
@@ -2649,14 +2688,16 @@ function convertChopRecipe(oldRecipe, newSliceCount) {
     }
   }
 
-  return {
+  return enforceExclusiveSlotEffects({
     slices: newSliceCount,
     pattern: newPattern,
     stutter: convertFlagMapForGrid(oldRecipe.stutter, oldSliceCount, newSliceCount),
     silent: convertFlagMapForGrid(oldRecipe.silent, oldSliceCount, newSliceCount),
     transform: convertFlagMapForGrid(oldRecipe.transform, oldSliceCount, newSliceCount),
-    halfSpeed: convertFlagMapForGrid(oldRecipe.halfSpeed, oldSliceCount, newSliceCount)
-  };
+    tripletTransform: convertFlagMapForGrid(oldRecipe.tripletTransform, oldSliceCount, newSliceCount),
+    halfSpeed: convertFlagMapForGrid(oldRecipe.halfSpeed, oldSliceCount, newSliceCount),
+    doubleSpeed: convertFlagMapForGrid(oldRecipe.doubleSpeed, oldSliceCount, newSliceCount)
+  });
 }
 
 async function changeChopGrid(loopId, sliceCount) {
@@ -2718,6 +2759,41 @@ function setFlagAtSlot(flagMap, slotIndex, value) {
   }
 }
 
+function enforceExclusiveSlotEffects(recipe) {
+  if (!recipe.transform) recipe.transform = {};
+  if (!recipe.tripletTransform) recipe.tripletTransform = {};
+  if (!recipe.halfSpeed) recipe.halfSpeed = {};
+  if (!recipe.doubleSpeed) recipe.doubleSpeed = {};
+
+  const sliceCount = Math.max(0, Number(recipe.slices) || 0);
+
+  for (let slotIndex = 0; slotIndex < sliceCount; slotIndex++) {
+    if (recipe.tripletTransform[slotIndex] === true) {
+      delete recipe.transform[slotIndex];
+    }
+
+    if (recipe.doubleSpeed[slotIndex] === true) {
+      delete recipe.halfSpeed[slotIndex];
+    }
+  }
+
+  return recipe;
+}
+
+function setExclusiveSlotFlag(recipe, activeFlagKey, inactiveFlagKey, slotIndex) {
+  if (!recipe[activeFlagKey]) recipe[activeFlagKey] = {};
+  if (!recipe[inactiveFlagKey]) recipe[inactiveFlagKey] = {};
+
+  const nextValue = recipe[activeFlagKey][slotIndex] !== true;
+
+  if (nextValue) {
+    recipe[activeFlagKey][slotIndex] = true;
+    delete recipe[inactiveFlagKey][slotIndex];
+  } else {
+    delete recipe[activeFlagKey][slotIndex];
+  }
+}
+
 function swapChopSlots(loopId, firstSlotIndex, secondSlotIndex) {
   if (firstSlotIndex === secondSlotIndex) {
     selectedChopSlotIndex = firstSlotIndex;
@@ -2726,7 +2802,7 @@ function swapChopSlots(loopId, firstSlotIndex, secondSlotIndex) {
   }
 
   const recipe = getChopRecipe(loopId);
-  const flagKeys = ["stutter", "silent", "transform", "halfSpeed"];
+  const flagKeys = ["stutter", "silent", "transform", "tripletTransform", "halfSpeed", "doubleSpeed"];
 
   flagKeys.forEach(flagKey => {
     if (!recipe[flagKey]) recipe[flagKey] = {};
@@ -2808,11 +2884,20 @@ function toggleSilentSelectedChop(loopId) {
 function toggleTransformSelectedChop(loopId) {
   const recipe = getChopRecipe(loopId);
 
-  if (!recipe.transform) {
-    recipe.transform = {};
-  }
+  setExclusiveSlotFlag(recipe, "transform", "tripletTransform", selectedChopSlotIndex);
 
-  recipe.transform[selectedChopSlotIndex] = recipe.transform[selectedChopSlotIndex] !== true;
+  setChopRecipe(loopId, recipe);
+  refreshPlayingLoopAfterChopEdit(loopId);
+  advanceSelectedChopSlot(loopId);
+
+  renderChopEditor();
+  render();
+}
+
+function toggleTripletTransformSelectedChop(loopId) {
+  const recipe = getChopRecipe(loopId);
+
+  setExclusiveSlotFlag(recipe, "tripletTransform", "transform", selectedChopSlotIndex);
 
   setChopRecipe(loopId, recipe);
   refreshPlayingLoopAfterChopEdit(loopId);
@@ -2825,11 +2910,20 @@ function toggleTransformSelectedChop(loopId) {
 function toggleHalfSpeedSelectedChop(loopId) {
   const recipe = getChopRecipe(loopId);
 
-  if (!recipe.halfSpeed) {
-    recipe.halfSpeed = {};
-  }
+  setExclusiveSlotFlag(recipe, "halfSpeed", "doubleSpeed", selectedChopSlotIndex);
 
-  recipe.halfSpeed[selectedChopSlotIndex] = recipe.halfSpeed[selectedChopSlotIndex] !== true;
+  setChopRecipe(loopId, recipe);
+  refreshPlayingLoopAfterChopEdit(loopId);
+  advanceSelectedChopSlot(loopId);
+
+  renderChopEditor();
+  render();
+}
+
+function toggleDoubleSpeedSelectedChop(loopId) {
+  const recipe = getChopRecipe(loopId);
+
+  setExclusiveSlotFlag(recipe, "doubleSpeed", "halfSpeed", selectedChopSlotIndex);
 
   setChopRecipe(loopId, recipe);
   refreshPlayingLoopAfterChopEdit(loopId);
@@ -2881,13 +2975,15 @@ function buildChopRowsHtml(loop, recipe, mode) {
         const isSilent = recipe.silent && recipe.silent[slotIndex] === true;
         const isStutter = recipe.stutter && recipe.stutter[slotIndex] === true;
         const isTransform = recipe.transform && recipe.transform[slotIndex] === true;
+        const isTripletTransform = recipe.tripletTransform && recipe.tripletTransform[slotIndex] === true;
         const isHalfSpeed = recipe.halfSpeed && recipe.halfSpeed[slotIndex] === true;
-        const fxText = `${isStutter ? "≋ " : ""}${isTransform ? "◒ " : ""}${isHalfSpeed ? "½ " : ""}`;
-        const slotText = isSilent ? "X" : `${fxText}${sourceSliceIndex + 1}`;
+        const isDoubleSpeed = recipe.doubleSpeed && recipe.doubleSpeed[slotIndex] === true;
+        const fxText = `${isStutter ? '<span class="slot-fx-symbol">≋</span>' : ""}${isTransform ? '<span class="slot-fx-symbol">◒</span>' : ""}${isTripletTransform ? '<span class="slot-fx-symbol">⅓</span>' : ""}${isHalfSpeed ? '<span class="slot-fx-symbol">½</span>' : ""}${isDoubleSpeed ? '<span class="slot-fx-symbol">2×</span>' : ""}`;
+        const slotText = isSilent ? "X" : `${fxText}<span class="slot-number-text">${sourceSliceIndex + 1}</span>`;
 
         buttonsHtml += `
           <button
-            class="chop-slot${selectedClass}${draggingClass}${isSilent ? " silent" : ""}${isTransform ? " transform" : ""}${isHalfSpeed ? " half-speed" : ""}"
+            class="chop-slot${selectedClass}${draggingClass}${isSilent ? " silent" : ""}${isTransform ? " transform" : ""}${isTripletTransform ? " triplet-transform" : ""}${isHalfSpeed ? " half-speed" : ""}${isDoubleSpeed ? " double-speed" : ""}"
             data-target-slot="${slotIndex}"
             data-loop-id="${loop.id}"
             data-slot-index="${slotIndex}"
@@ -3117,11 +3213,17 @@ function renderChopEditor() {
     </div>
 
     <div class="chop-section-divider"></div>
-    <div class="chop-actions">
+    <div class="chop-actions chop-fx-actions">
       <button class="secondary reverse-chop-button" type="button"><span class="chop-action-symbol">≋</span>${t("reverseSelected")}</button>
       <button class="secondary mute-chop-button" type="button"><span class="chop-action-symbol">✕</span>${t("muteSelected")}</button>
-      <button class="secondary transform-chop-button" type="button"><span class="chop-action-symbol">◒</span>${t("transformSelected")}</button>
       <button class="secondary half-speed-chop-button" type="button"><span class="chop-action-symbol">½</span>${t("halfSpeedSelected")}</button>
+      <button class="secondary transform-chop-button" type="button"><span class="chop-action-symbol">◒</span>${t("transformSelected")}</button>
+      <button class="secondary triplet-transform-chop-button" type="button"><span class="chop-action-symbol">⅓</span>${t("tripletTransformSelected")}</button>
+      <button class="secondary double-speed-chop-button" type="button"><span class="chop-action-symbol">2×</span>${t("doubleSpeedSelected")}</button>
+    </div>
+
+    <div class="chop-section-divider chop-action-divider"></div>
+    <div class="chop-actions chop-workflow-actions">
       <button class="secondary random-chop-button" type="button"><span class="chop-action-symbol">⇄</span>${t("random")}</button>
       <button class="secondary reset-chop-button" type="button">${t("reset")}</button>
       <button class="done-chop-button" type="button">${t("done")}</button>
@@ -3144,7 +3246,9 @@ function renderChopEditor() {
   chopEditorEl.querySelector(".reverse-chop-button").addEventListener("click", () => toggleReverseSelectedChop(loop.id));
   chopEditorEl.querySelector(".mute-chop-button").addEventListener("click", () => toggleSilentSelectedChop(loop.id));
   chopEditorEl.querySelector(".transform-chop-button").addEventListener("click", () => toggleTransformSelectedChop(loop.id));
+  chopEditorEl.querySelector(".triplet-transform-chop-button").addEventListener("click", () => toggleTripletTransformSelectedChop(loop.id));
   chopEditorEl.querySelector(".half-speed-chop-button").addEventListener("click", () => toggleHalfSpeedSelectedChop(loop.id));
+  chopEditorEl.querySelector(".double-speed-chop-button").addEventListener("click", () => toggleDoubleSpeedSelectedChop(loop.id));
   chopEditorEl.querySelector(".pick-different-loop-button").addEventListener("click", () => handleChooseDifferentSound(loop.id));
 
   chopEditorEl.querySelectorAll("[data-grid-size]").forEach(button => {
@@ -3431,8 +3535,10 @@ function scheduleOfflineChoppedLoop(offlineContext, masterNode, loop, buffer, ex
     const sourceOffset = sourceSliceIndex * sliceDuration;
     const isStutter = recipe.stutter && recipe.stutter[slotIndex] === true;
     const isTransform = recipe.transform && recipe.transform[slotIndex] === true;
+    const isTripletTransform = recipe.tripletTransform && recipe.tripletTransform[slotIndex] === true;
     const isHalfSpeed = recipe.halfSpeed && recipe.halfSpeed[slotIndex] === true;
-    const playbackRate = isHalfSpeed ? 0.5 : 1;
+    const isDoubleSpeed = recipe.doubleSpeed && recipe.doubleSpeed[slotIndex] === true;
+    const playbackRate = isHalfSpeed ? 0.5 : (isDoubleSpeed ? 2 : 1);
 
     const previousSlotIndex = (slotIndex - 1 + recipe.slices) % recipe.slices;
     const nextSlotIndex = (slotIndex + 1) % recipe.slices;
@@ -3449,7 +3555,7 @@ function scheduleOfflineChoppedLoop(offlineContext, masterNode, loop, buffer, ex
       const repeatCount = Math.ceil(duration / repeatDuration);
 
       for (let repeatIndex = 0; repeatIndex < repeatCount; repeatIndex++) {
-        if (isTransform && repeatIndex % 2 === 1) continue;
+        if ((isTransform || isTripletTransform) && repeatIndex % 2 === 1) continue;
 
         const segmentStartTime = startTime + (repeatIndex * repeatDuration);
         const remainingDuration = (startTime + duration) - segmentStartTime;
@@ -3468,44 +3574,38 @@ function scheduleOfflineChoppedLoop(offlineContext, masterNode, loop, buffer, ex
           playbackRate
         );
       }
-    } else if (isTransform) {
-      const gateCount = 8;
-      const gateDuration = duration / gateCount;
-
-      for (let gateIndex = 0; gateIndex < gateCount; gateIndex++) {
-        if (gateIndex % 2 === 1) continue;
-
-        const segmentStartTime = startTime + (gateIndex * gateDuration);
-        const segmentSourceOffset = sourceOffset + (gateIndex * gateDuration * playbackRate);
-        const remainingDuration = (startTime + duration) - segmentStartTime;
-        const segmentDuration = Math.min(gateDuration, remainingDuration);
-
-        scheduleOfflineSegment(
-          offlineContext,
-          masterNode,
-          buffer,
-          loop,
-          segmentSourceOffset,
-          segmentStartTime,
-          segmentDuration,
-          true,
-          true,
-          playbackRate
-        );
-      }
     } else {
-      scheduleOfflineSegment(
-        offlineContext,
-        masterNode,
-        buffer,
-        loop,
-        sourceOffset,
-        startTime,
-        duration,
-        !naturalFromPrevious,
-        !naturalToNext,
-        playbackRate
-      );
+      const repeatCount = isDoubleSpeed ? 2 : 1;
+      const repeatDuration = duration / repeatCount;
+      const gateCount = isTripletTransform ? (active.recipe.slices === 4 ? 12 : 6) : (isTransform ? (active.recipe.slices === 4 ? 16 : 8) : 1);
+
+      for (let repeatIndex = 0; repeatIndex < repeatCount; repeatIndex++) {
+        const repeatStartTime = startTime + (repeatIndex * repeatDuration);
+        const gateDuration = repeatDuration / gateCount;
+
+        for (let gateIndex = 0; gateIndex < gateCount; gateIndex++) {
+          if (gateCount > 1 && gateIndex % 2 === 1) continue;
+
+          const segmentStartTime = repeatStartTime + (gateIndex * gateDuration);
+          const segmentSourceOffset = sourceOffset + (gateIndex * gateDuration * playbackRate);
+          const remainingDuration = (repeatStartTime + repeatDuration) - segmentStartTime;
+          const segmentDuration = Math.min(gateDuration, remainingDuration);
+          const forceSmallFade = gateCount > 1 || repeatCount > 1;
+
+          scheduleOfflineSegment(
+            offlineContext,
+            masterNode,
+            buffer,
+            loop,
+            segmentSourceOffset,
+            segmentStartTime,
+            segmentDuration,
+            !naturalFromPrevious || forceSmallFade,
+            !naturalToNext || forceSmallFade,
+            playbackRate
+          );
+        }
+      }
     }
   }
 }
@@ -3684,13 +3784,13 @@ function stopLoopSource(loopId) {
   activeGainNodesByLoopId.delete(loopId);
 }
 
-function scheduleChopSlice(active, sourceSliceIndex, playTime, sourceOffset, duration, shouldFadeIn, shouldFadeOut, slotIndexForVisual, isStutter, isTransform = false, isHalfSpeed = false) {
+function scheduleChopSlice(active, sourceSliceIndex, playTime, sourceOffset, duration, shouldFadeIn, shouldFadeOut, slotIndexForVisual, isStutter, isTransform = false, isHalfSpeed = false, isTripletTransform = false, isDoubleSpeed = false) {
   if (!active || active.stopped) return;
   if (duration <= 0.005) return;
 
   const tinyChunkDuration = active.buffer.duration / 64;
   const useStutter = isStutter && tinyChunkDuration > 0.005;
-  const playbackRate = isHalfSpeed ? 0.5 : 1;
+  const playbackRate = isHalfSpeed ? 0.5 : (isDoubleSpeed ? 2 : 1);
 
   function scheduleOneSegment(segmentStartTime, segmentSourceOffset, segmentDuration, fadeThisIn, fadeThisOut) {
     if (segmentDuration <= 0.005) return;
@@ -3741,7 +3841,7 @@ function scheduleChopSlice(active, sourceSliceIndex, playTime, sourceOffset, dur
     const repeatCount = Math.ceil(duration / repeatDuration);
 
     for (let repeatIndex = 0; repeatIndex < repeatCount; repeatIndex++) {
-      if (isTransform && repeatIndex % 2 === 1) continue;
+      if ((isTransform || isTripletTransform) && repeatIndex % 2 === 1) continue;
 
       const segmentStartTime = playTime + (repeatIndex * repeatDuration);
       const remainingDuration = (playTime + duration) - segmentStartTime;
@@ -3749,22 +3849,33 @@ function scheduleChopSlice(active, sourceSliceIndex, playTime, sourceOffset, dur
 
       scheduleOneSegment(segmentStartTime, sourceOffset, segmentDuration, true, true);
     }
-  } else if (isTransform) {
-    const gateCount = 8;
-    const gateDuration = duration / gateCount;
-
-    for (let gateIndex = 0; gateIndex < gateCount; gateIndex++) {
-      if (gateIndex % 2 === 1) continue;
-
-      const segmentStartTime = playTime + (gateIndex * gateDuration);
-      const segmentSourceOffset = sourceOffset + (gateIndex * gateDuration * playbackRate);
-      const remainingDuration = (playTime + duration) - segmentStartTime;
-      const segmentDuration = Math.min(gateDuration, remainingDuration);
-
-      scheduleOneSegment(segmentStartTime, segmentSourceOffset, segmentDuration, true, true);
-    }
   } else {
-    scheduleOneSegment(playTime, sourceOffset, duration, shouldFadeIn, shouldFadeOut);
+    const repeatCount = isDoubleSpeed ? 2 : 1;
+    const repeatDuration = duration / repeatCount;
+    const gateCount = isTripletTransform ? (active.recipe.slices === 4 ? 12 : 6) : (isTransform ? (active.recipe.slices === 4 ? 16 : 8) : 1);
+
+    for (let repeatIndex = 0; repeatIndex < repeatCount; repeatIndex++) {
+      const repeatStartTime = playTime + (repeatIndex * repeatDuration);
+      const gateDuration = repeatDuration / gateCount;
+
+      for (let gateIndex = 0; gateIndex < gateCount; gateIndex++) {
+        if (gateCount > 1 && gateIndex % 2 === 1) continue;
+
+        const segmentStartTime = repeatStartTime + (gateIndex * gateDuration);
+        const segmentSourceOffset = sourceOffset + (gateIndex * gateDuration * playbackRate);
+        const remainingDuration = (repeatStartTime + repeatDuration) - segmentStartTime;
+        const segmentDuration = Math.min(gateDuration, remainingDuration);
+        const forceSmallFade = gateCount > 1 || repeatCount > 1;
+
+        scheduleOneSegment(
+          segmentStartTime,
+          segmentSourceOffset,
+          segmentDuration,
+          shouldFadeIn || forceSmallFade,
+          shouldFadeOut || forceSmallFade
+        );
+      }
+    }
   }
 
   const delayUntilHeard = Math.max(0, (playTime - audioContext.currentTime) * 1000);
@@ -3807,7 +3918,9 @@ function runChopScheduler(active) {
 
   const isStutter = active.recipe.stutter && active.recipe.stutter[active.nextSlotIndex] === true;
   const isTransform = active.recipe.transform && active.recipe.transform[active.nextSlotIndex] === true;
+  const isTripletTransform = active.recipe.tripletTransform && active.recipe.tripletTransform[active.nextSlotIndex] === true;
   const isHalfSpeed = active.recipe.halfSpeed && active.recipe.halfSpeed[active.nextSlotIndex] === true;
+  const isDoubleSpeed = active.recipe.doubleSpeed && active.recipe.doubleSpeed[active.nextSlotIndex] === true;
 
     const sourceOffset = sourceSliceIndex * active.sliceDuration;
 
@@ -3831,7 +3944,9 @@ function runChopScheduler(active) {
       slotIndexForVisual,
       isStutter,
       isTransform,
-      isHalfSpeed
+      isHalfSpeed,
+      isTripletTransform,
+      isDoubleSpeed
     );
 
     active.nextSlotTime += active.sliceDuration;
@@ -3863,10 +3978,12 @@ function startChoppedLoopSource(loopId, buffer, gainNode, actualStartTime) {
   const firstSourceSliceIndex = recipe.pattern[startSlotIndex];
   const firstIsStutter = recipe.stutter && recipe.stutter[startSlotIndex] === true;
   const firstIsTransform = recipe.transform && recipe.transform[startSlotIndex] === true;
+  const firstIsTripletTransform = recipe.tripletTransform && recipe.tripletTransform[startSlotIndex] === true;
   const firstIsHalfSpeed = recipe.halfSpeed && recipe.halfSpeed[startSlotIndex] === true;
+  const firstIsDoubleSpeed = recipe.doubleSpeed && recipe.doubleSpeed[startSlotIndex] === true;
   const firstIsSilent = recipe.silent && recipe.silent[startSlotIndex] === true;
 
-  const firstPlaybackRate = firstIsHalfSpeed ? 0.5 : 1;
+  const firstPlaybackRate = firstIsHalfSpeed ? 0.5 : (firstIsDoubleSpeed ? 2 : 1);
   const firstSourceOffset = (firstSourceSliceIndex * sliceDuration) + (offsetInsideSlot * firstPlaybackRate);
   const firstDuration = sliceDuration - offsetInsideSlot;
 
@@ -3893,7 +4010,9 @@ function startChoppedLoopSource(loopId, buffer, gainNode, actualStartTime) {
       startSlotIndex,
       firstIsStutter,
       firstIsTransform,
-      firstIsHalfSpeed
+      firstIsHalfSpeed,
+      firstIsTripletTransform,
+      firstIsDoubleSpeed
     );
   }
 
