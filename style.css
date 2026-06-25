@@ -1964,3 +1964,12 @@ body {
     height: 36px;
   }
 }
+
+@media (max-width: 768px){
+ .compact-chop-header{display:flex;justify-content:space-between;align-items:flex-start;}
+ .chop-header-controls{margin-left:auto;display:flex;flex-direction:column-reverse;align-items:flex-end;gap:8px;}
+ .compact-grid-buttons{grid-template-columns:repeat(2,64px);justify-content:end;}
+ .compact-grid-buttons button{width:64px;height:44px;}
+ .close-chop-button{width:44px;min-width:44px;height:44px;padding:0;border-radius:50%;font-size:0;}
+ .close-chop-button::before{content:"✕";font-size:1.4rem;line-height:44px;}
+}
