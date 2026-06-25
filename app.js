@@ -39,6 +39,10 @@ const TEXT = {
     originalLoop: "Step 2: Tap a slice below to replace the selected slot",
     reset: "Reset",
     random: "Randomize",
+    randomOrder: "Randomize Order",
+    randomFx: "Randomize FX",
+    undo: "Undo",
+    randomized: "Randomized",
     reverseSelected: "Stutter",
     muteSelected: "Mute",
     transformSelected: "Transform",
@@ -184,6 +188,10 @@ const TEXT = {
     originalLoop: "步驟 2：點選下方切片來替換目前選取的格子",
     reset: "重設",
     random: "隨機編排",
+    randomOrder: "隨機排序",
+    randomFx: "隨機效果",
+    undo: "復原",
+    randomized: "已隨機化",
     reverseSelected: "Stutter",
     muteSelected: "靜音",
     transformSelected: "Transform",
@@ -403,6 +411,8 @@ let draggedChopSlotIndex = null;
 let activeChopDrag = null;
 let chopDragGhostEl = null;
 let chopDragTargetSlotIndex = null;
+let chopUndoByLoopId = {};
+let suppressChopUndoSnapshot = false;
 
 let selectedElementFilter = null;
 let selectedStyleFilter = null;
@@ -957,8 +967,54 @@ function getChopRecipe(loopId) {
   });
 }
 
+
+function cloneChopRecipeForUndo(recipe) {
+  return {
+    slices: recipe.slices,
+    pattern: Array.isArray(recipe.pattern) ? recipe.pattern.slice() : makeIdentityPattern(recipe.slices || DEFAULT_CHOP_SLICES),
+    stutter: Object.assign({}, recipe.stutter || recipe.reverse || {}),
+    silent: Object.assign({}, recipe.silent || {}),
+    transform: Object.assign({}, recipe.transform || {}),
+    tripletTransform: Object.assign({}, recipe.tripletTransform || {}),
+    halfSpeed: Object.assign({}, recipe.halfSpeed || {}),
+    doubleSpeed: Object.assign({}, recipe.doubleSpeed || {})
+  };
+}
+
+function saveChopUndoSnapshot(loopId) {
+  if (!loopId || suppressChopUndoSnapshot) return;
+  if (!beat.chops || !beat.chops[loopId]) return;
+
+  chopUndoByLoopId[loopId] = cloneChopRecipeForUndo(getChopRecipe(loopId));
+}
+
+async function undoChopEdit(loopId) {
+  const undoRecipe = chopUndoByLoopId[loopId];
+
+  if (!undoRecipe) return;
+
+  suppressChopUndoSnapshot = true;
+  setChopRecipe(loopId, cloneChopRecipeForUndo(undoRecipe));
+  suppressChopUndoSnapshot = false;
+
+  delete chopUndoByLoopId[loopId];
+
+  const recipe = getChopRecipe(loopId);
+  selectedChopSlotIndex = Math.max(0, Math.min(recipe.slices - 1, selectedChopSlotIndex));
+  playingChopSlotByLoopId.set(loopId, selectedChopSlotIndex);
+
+  await refreshPlayingLoopAfterChopEdit(loopId);
+
+  renderChopEditor();
+  render();
+}
+
 function setChopRecipe(loopId, recipe) {
   ensureBeatDataObjects();
+
+  if (!suppressChopUndoSnapshot && selectedChopLoopId === loopId && beat.chops && beat.chops[loopId]) {
+    saveChopUndoSnapshot(loopId);
+  }
 
   const cleanRecipe = enforceExclusiveSlotEffects({
     slices: recipe.slices,
@@ -1031,22 +1087,9 @@ function getOffsetAtTime(bufferDuration, targetTime) {
 function updateChopPlayhead(loopId, slotIndex) {
   playingChopSlotByLoopId.set(loopId, slotIndex);
 
-  const recipe = getChopRecipe(loopId);
-  const rowSize = recipe.slices === 32 ? 16 : recipe.slices;
-  const rowIndex = Math.floor(slotIndex / rowSize);
-  const slotInRow = slotIndex % rowSize;
-  const slotWidthPercent = 100 / rowSize;
-
-  document.querySelectorAll(`.chop-playhead[data-loop-id="${loopId}"]`).forEach(playhead => {
-    const playheadRow = Number(playhead.dataset.rowIndex);
-
-    if (playheadRow === rowIndex) {
-      playhead.style.display = "block";
-      playhead.style.left = `${slotInRow * slotWidthPercent}%`;
-      playhead.style.width = `${slotWidthPercent}%`;
-    } else {
-      playhead.style.display = "none";
-    }
+  document.querySelectorAll(`.chop-play-button[data-loop-id="${loopId}"]`).forEach(button => {
+    const buttonSlot = Number(button.dataset.playSlot);
+    button.classList.toggle("active", buttonSlot === slotIndex);
   });
 }
 
@@ -1105,9 +1148,49 @@ function drawWaveformCanvas(canvas, buffer, recipe, useChopPattern, startSlot = 
   ctx.fillStyle = "rgba(255, 255, 255, 0.055)";
   ctx.fillRect(0, 0, displayWidth, displayHeight);
 
+  function getFxVisualAlpha(rawLocalPos, slotIndex, isMuted) {
+    if (isMuted) return 0.20;
+
+    const hasTransform = useChopPattern && recipe.transform && recipe.transform[slotIndex] === true;
+    const hasTripletTransform = useChopPattern && recipe.tripletTransform && recipe.tripletTransform[slotIndex] === true;
+
+    if (hasTripletTransform) {
+      const bandIndex = Math.floor(rawLocalPos * 6);
+      return (bandIndex % 2 === 0) ? 0.92 : 0.20;
+    }
+
+    if (hasTransform) {
+      const bandIndex = Math.floor(rawLocalPos * 8);
+      return (bandIndex % 2 === 0) ? 0.92 : 0.20;
+    }
+
+    return 0.92;
+  }
+
+  function getFxVisualLocalPos(rawLocalPos, slotIndex, sourceLength) {
+    const isStutter = useChopPattern && recipe.stutter && recipe.stutter[slotIndex] === true;
+    const isHalfSpeed = useChopPattern && recipe.halfSpeed && recipe.halfSpeed[slotIndex] === true;
+    const isDoubleSpeed = useChopPattern && recipe.doubleSpeed && recipe.doubleSpeed[slotIndex] === true;
+
+    if (isStutter) {
+      const tinyRepeatLength = Math.max(0.01, (1 / 64) / (1 / sliceCount));
+      return rawLocalPos % tinyRepeatLength;
+    }
+
+    if (isHalfSpeed) {
+      return rawLocalPos * 0.5;
+    }
+
+    if (isDoubleSpeed) {
+      return (rawLocalPos * 2) % 1;
+    }
+
+    return rawLocalPos;
+  }
+
   for (let slotIndex = startSlot; slotIndex < rowEndSlot; slotIndex++) {
     const sourceSliceIndex = useChopPattern ? recipe.pattern[slotIndex] : slotIndex;
-    const isStutter = useChopPattern && recipe.stutter && recipe.stutter[slotIndex] === true;
+    const isMuted = useChopPattern && recipe.silent && recipe.silent[slotIndex] === true;
     const isSelected = useChopPattern && slotIndex === selectedChopSlotIndex;
 
     const sourceStartSample = Math.floor((sourceSliceIndex / sliceCount) * data.length);
@@ -1118,16 +1201,13 @@ function drawWaveformCanvas(canvas, buffer, recipe, useChopPattern, startSlot = 
     const visualStartX = visualSlotIndex * slotWidth;
     const visualEndX = (visualSlotIndex + 1) * slotWidth;
 
-    ctx.strokeStyle = isSelected
-      ? "rgba(255, 74, 112, 0.98)"
-      : (useChopPattern ? "rgba(119, 255, 146, 0.92)" : "rgba(41, 231, 255, 0.92)");
     ctx.lineWidth = isSelected ? 2.2 : 1.5;
-    ctx.beginPath();
 
     for (let px = Math.floor(visualStartX); px < Math.floor(visualEndX); px++) {
       const rawLocalPos = (px - visualStartX) / slotWidth;
-      const localPos = isStutter ? (rawLocalPos % Math.max(0.01, (1 / 64) / (1 / sliceCount))) : rawLocalPos;
+      const localPos = Math.max(0, Math.min(0.9999, getFxVisualLocalPos(rawLocalPos, slotIndex, sourceLength)));
       const sampleIndex = sourceStartSample + Math.floor(localPos * sourceLength);
+      const visualAlpha = getFxVisualAlpha(rawLocalPos, slotIndex, isMuted);
 
       let minValue = 1;
       let maxValue = -1;
@@ -1143,11 +1223,19 @@ function drawWaveformCanvas(canvas, buffer, recipe, useChopPattern, startSlot = 
       const y1 = centerY - (maxValue * centerY * 0.86);
       const y2 = centerY - (minValue * centerY * 0.86);
 
+      if (isSelected) {
+        ctx.strokeStyle = `rgba(255, 74, 112, ${Math.max(0.28, visualAlpha)})`;
+      } else if (useChopPattern) {
+        ctx.strokeStyle = `rgba(119, 255, 146, ${visualAlpha})`;
+      } else {
+        ctx.strokeStyle = "rgba(41, 231, 255, 0.92)";
+      }
+
+      ctx.beginPath();
       ctx.moveTo(px, y1);
       ctx.lineTo(px, y2);
+      ctx.stroke();
     }
-
-    ctx.stroke();
   }
 
   ctx.strokeStyle = "rgba(255, 255, 255, 0.16)";
@@ -2160,10 +2248,12 @@ function render() {
 
   activeLoopsEl.innerHTML = "";
 
-  if (beat.loops.length === 0) {
+  const visibleActiveLoopIds = beat.loops.filter(loopId => loopId !== pendingContributionLoopId);
+
+  if (visibleActiveLoopIds.length === 0) {
     activeLoopsEl.innerHTML = `<div class="empty">${t("noLoops")}</div>`;
   } else {
-    beat.loops.forEach((loopId, index) => {
+    visibleActiveLoopIds.forEach((loopId, index) => {
       const loop = getLoopById(loopId);
       if (!loop) return;
 
@@ -2280,7 +2370,7 @@ function render() {
           ${previewLoopData ? `${t("previewing")}: <strong>${previewLoopData.name}</strong>` : t("pickLoopHelp")}
         </div>
 
-        <div class="loop-picker-actions">
+        <div class="loop-picker-actions loop-picker-actions-three">
           <button
             id="pickPreviewLoopButton"
             type="button"
@@ -2289,6 +2379,9 @@ function render() {
           </button>
           <button id="toggleFilterPanelButton" class="secondary" type="button">
             ${filterPanelOpen ? t("hideFilters") : t("filterResults")}
+          </button>
+          <button id="chooseDifferentElementButton" class="secondary" type="button">
+            ${t("chooseDifferentElement")}
           </button>
         </div>
 
@@ -2344,6 +2437,19 @@ function render() {
     if (toggleFilterPanelButton) {
       toggleFilterPanelButton.addEventListener("click", () => {
         filterPanelOpen = !filterPanelOpen;
+        render();
+      });
+    }
+
+    const chooseDifferentElementButton = document.getElementById("chooseDifferentElementButton");
+    if (chooseDifferentElementButton) {
+      chooseDifferentElementButton.addEventListener("click", () => {
+        stopPreviewLoop();
+        previewLoopId = null;
+        selectedElementFilter = null;
+        selectedStyleFilter = null;
+        selectedStyleFilters = [];
+        filterPanelOpen = false;
         render();
       });
     }
@@ -2522,6 +2628,10 @@ function handleChooseDifferentSound(loopId) {
 
   if (beat.restoredOriginalLoops) {
     delete beat.restoredOriginalLoops[loopId];
+  }
+
+  if (chopUndoByLoopId) {
+    delete chopUndoByLoopId[loopId];
   }
 
   selectedElementFilter = loopToReplace.type;
@@ -2759,7 +2869,17 @@ function setFlagAtSlot(flagMap, slotIndex, value) {
   }
 }
 
+function clearNonMuteEffectsAtSlot(recipe, slotIndex) {
+  if (recipe.stutter) delete recipe.stutter[slotIndex];
+  if (recipe.transform) delete recipe.transform[slotIndex];
+  if (recipe.tripletTransform) delete recipe.tripletTransform[slotIndex];
+  if (recipe.halfSpeed) delete recipe.halfSpeed[slotIndex];
+  if (recipe.doubleSpeed) delete recipe.doubleSpeed[slotIndex];
+}
+
 function enforceExclusiveSlotEffects(recipe) {
+  if (!recipe.stutter) recipe.stutter = {};
+  if (!recipe.silent) recipe.silent = {};
   if (!recipe.transform) recipe.transform = {};
   if (!recipe.tripletTransform) recipe.tripletTransform = {};
   if (!recipe.halfSpeed) recipe.halfSpeed = {};
@@ -2768,6 +2888,11 @@ function enforceExclusiveSlotEffects(recipe) {
   const sliceCount = Math.max(0, Number(recipe.slices) || 0);
 
   for (let slotIndex = 0; slotIndex < sliceCount; slotIndex++) {
+    if (recipe.silent[slotIndex] === true) {
+      clearNonMuteEffectsAtSlot(recipe, slotIndex);
+      continue;
+    }
+
     if (recipe.tripletTransform[slotIndex] === true) {
       delete recipe.transform[slotIndex];
     }
@@ -2869,9 +2994,13 @@ function toggleReverseSelectedChop(loopId) {
 
 function toggleSilentSelectedChop(loopId) {
   const recipe = getChopRecipe(loopId);
+  const shouldMute = recipe.silent[selectedChopSlotIndex] !== true;
 
-  recipe.silent[selectedChopSlotIndex] =
-    recipe.silent[selectedChopSlotIndex] !== true;
+  recipe.silent[selectedChopSlotIndex] = shouldMute;
+
+  if (shouldMute) {
+    clearNonMuteEffectsAtSlot(recipe, selectedChopSlotIndex);
+  }
 
   setChopRecipe(loopId, recipe);
   refreshPlayingLoopAfterChopEdit(loopId);
@@ -2933,7 +3062,7 @@ function toggleDoubleSpeedSelectedChop(loopId) {
   render();
 }
 
-function randomizeChop(loopId) {
+function randomizeChopOrder(loopId) {
   const recipe = getChopRecipe(loopId);
 
   for (let i = 0; i < recipe.slices; i++) {
@@ -2942,6 +3071,75 @@ function randomizeChop(loopId) {
 
   setChopRecipe(loopId, recipe);
   refreshPlayingLoopAfterChopEdit(loopId);
+  showTemporaryToast(t("randomized"), "edit-warning-toast");
+  renderChopEditor();
+  render();
+}
+
+function clearRecipeFx(recipe) {
+  recipe.stutter = {};
+  recipe.silent = {};
+  recipe.transform = {};
+  recipe.tripletTransform = {};
+  recipe.halfSpeed = {};
+  recipe.doubleSpeed = {};
+}
+
+function randomizeChopFx(loopId) {
+  const recipe = getChopRecipe(loopId);
+  clearRecipeFx(recipe);
+
+  for (let slotIndex = 0; slotIndex < recipe.slices; slotIndex++) {
+    if (Math.random() > 0.70) {
+      continue;
+    }
+
+    let appliedAnyEffect = false;
+
+    const rhythmRoll = Math.random();
+    if (rhythmRoll < 0.30) {
+      recipe.stutter[slotIndex] = true;
+      appliedAnyEffect = true;
+    } else if (rhythmRoll < 0.55) {
+      recipe.silent[slotIndex] = true;
+      clearNonMuteEffectsAtSlot(recipe, slotIndex);
+      appliedAnyEffect = true;
+    }
+
+    if (recipe.silent[slotIndex] !== true) {
+      const transformRoll = Math.random();
+      if (transformRoll < 0.25) {
+        recipe.transform[slotIndex] = true;
+        appliedAnyEffect = true;
+      } else if (transformRoll < 0.50) {
+        recipe.tripletTransform[slotIndex] = true;
+        appliedAnyEffect = true;
+      }
+
+      const speedRoll = Math.random();
+      if (speedRoll < 0.20) {
+        recipe.halfSpeed[slotIndex] = true;
+        appliedAnyEffect = true;
+      } else if (speedRoll < 0.40) {
+        recipe.doubleSpeed[slotIndex] = true;
+        appliedAnyEffect = true;
+      }
+    }
+
+    if (!appliedAnyEffect) {
+      const fallbackEffects = ["stutter", "silent", "transform", "tripletTransform", "halfSpeed", "doubleSpeed"];
+      const fallbackEffect = fallbackEffects[Math.floor(Math.random() * fallbackEffects.length)];
+      recipe[fallbackEffect][slotIndex] = true;
+
+      if (fallbackEffect === "silent") {
+        clearNonMuteEffectsAtSlot(recipe, slotIndex);
+      }
+    }
+  }
+
+  setChopRecipe(loopId, recipe);
+  refreshPlayingLoopAfterChopEdit(loopId);
+  showTemporaryToast(t("randomized"), "edit-warning-toast");
   renderChopEditor();
   render();
 }
@@ -3010,6 +3208,21 @@ function buildChopRowsHtml(loop, recipe, mode) {
         </div>`
       : "";
 
+    const playButtonsHtml = mode === "top"
+      ? Array.from({ length: visibleSlots }, (_, localIndex) => {
+          const playSlotIndex = rowStart + localIndex;
+          const isActive = playingChopSlotByLoopId.get(loop.id) === playSlotIndex;
+          return `
+            <button
+              class="chop-play-button${isActive ? " active" : ""}"
+              data-loop-id="${loop.id}"
+              data-play-slot="${playSlotIndex}"
+              type="button"
+              aria-label="Play from slot ${playSlotIndex + 1}">▶</button>
+          `;
+        }).join("")
+      : "";
+
     html += `
       <div
         class="chop-row-block ${mode === "top" ? "top-row-block" : "bottom-row-block"}"
@@ -3017,6 +3230,13 @@ function buildChopRowsHtml(loop, recipe, mode) {
         data-row-index="${rowIndex}"
         data-row-start="${rowStart}"
         data-row-end="${rowEnd}">
+        ${mode === "top" ? `
+          <div
+            class="chop-play-lane"
+            style="grid-template-columns: repeat(${visibleSlots}, 1fr);">
+            ${playButtonsHtml}
+          </div>
+        ` : ""}
         ${selectedFrameHtml}
         <canvas
           class="chop-waveform ${mode === "top" ? "top-waveform" : "bottom-waveform"}"
@@ -3024,14 +3244,6 @@ function buildChopRowsHtml(loop, recipe, mode) {
           data-start-slot="${rowStart}"
           data-end-slot="${rowEnd}">
         </canvas>
-
-        ${mode === "top" ? `
-          <div
-            class="chop-playhead"
-            data-loop-id="${loop.id}"
-            data-row-index="${rowIndex}">
-          </div>
-        ` : ""}
 
         <div
           class="chop-lane ${mode === "top" ? "top-lane" : "bottom-lane"}"
@@ -3182,27 +3394,27 @@ function renderChopEditor() {
   const bottomRowsHtml = buildChopRowsHtml(loop, recipe, "bottom");
 
   chopEditorEl.innerHTML = `
-    <div class="chop-header">
-      <div>
+    <div class="chop-header compact-chop-header">
+      <div class="chop-title-block">
         <p class="label">${t("chopEditor")}</p>
         <h2>${loop.name}</h2>
         <p class="loop-meta">${t("createdBy")} ${getLoopCreator(loop.id) || t("anonymousName")}${getLoopLastEditor(loop.id) && getLoopLastEditor(loop.id) !== getLoopCreator(loop.id) ? ` / ${t("lastEditedBy")} ${getLoopLastEditor(loop.id)}` : ""}</p>
       </div>
-      ${pendingContributionLoopId === loop.id ? "" : `<button class="ghost close-chop-button" type="button">${t("close")}</button>`}
-    </div>
-
-    <div class="chop-grid-buttons">
-      <span class="loop-meta">${t("grid")}</span>
-      <button class="${recipe.slices === 4 ? "selected" : ""}" data-grid-size="4" type="button">4</button>
-      <button class="${recipe.slices === 8 ? "selected" : ""}" data-grid-size="8" type="button">8</button>
-      <button class="${recipe.slices === 16 ? "selected" : ""}" data-grid-size="16" type="button">16</button>
-      <button class="${recipe.slices === 32 ? "selected" : ""}" data-grid-size="32" type="button">32</button>
+      <div class="chop-header-controls">
+        <div class="chop-grid-buttons compact-grid-buttons" aria-label="${t("grid")}">
+          <span class="loop-meta">${t("grid")}</span>
+          <button class="${recipe.slices === 4 ? "selected" : ""}" data-grid-size="4" type="button">4</button>
+          <button class="${recipe.slices === 8 ? "selected" : ""}" data-grid-size="8" type="button">8</button>
+          <button class="${recipe.slices === 16 ? "selected" : ""}" data-grid-size="16" type="button">16</button>
+          <button class="${recipe.slices === 32 ? "selected" : ""}" data-grid-size="32" type="button">32</button>
+        </div>
+        ${pendingContributionLoopId === loop.id ? "" : `<button class="ghost close-chop-button" type="button">${t("close")}</button>`}
+      </div>
     </div>
 
     <div class="chop-section-divider"></div>
     <div class="chop-lane-wrap rearranged-loop-section">
       <p class="loop-meta">${t("rearrangedLoop")}</p>
-      <p class="editing-slot-label">Editing slot ${selectedChopSlotIndex + 1}</p>
       ${topRowsHtml}
     </div>
 
@@ -3223,8 +3435,13 @@ function renderChopEditor() {
     </div>
 
     <div class="chop-section-divider chop-action-divider"></div>
+    <div class="chop-actions chop-random-actions">
+      <button class="secondary random-order-chop-button" type="button"><span class="chop-action-symbol">⇄</span>${t("randomOrder")}</button>
+      <button class="secondary random-fx-chop-button" type="button"><span class="chop-action-symbol">🎲</span>${t("randomFx")}</button>
+    </div>
+
     <div class="chop-actions chop-workflow-actions">
-      <button class="secondary random-chop-button" type="button"><span class="chop-action-symbol">⇄</span>${t("random")}</button>
+      <button class="secondary undo-chop-button ${chopUndoByLoopId[loop.id] ? "" : "disabled-action-button"}" type="button" ${chopUndoByLoopId[loop.id] ? "" : "disabled"}>${t("undo")}</button>
       <button class="secondary reset-chop-button" type="button">${t("reset")}</button>
       <button class="done-chop-button" type="button">${t("done")}</button>
       <button
@@ -3242,7 +3459,12 @@ function renderChopEditor() {
   }
   chopEditorEl.querySelector(".done-chop-button").addEventListener("click", finishChopContribution);
   chopEditorEl.querySelector(".reset-chop-button").addEventListener("click", () => resetCurrentChop(loop.id));
-  chopEditorEl.querySelector(".random-chop-button").addEventListener("click", () => randomizeChop(loop.id));
+  chopEditorEl.querySelector(".random-order-chop-button").addEventListener("click", () => randomizeChopOrder(loop.id));
+  chopEditorEl.querySelector(".random-fx-chop-button").addEventListener("click", () => randomizeChopFx(loop.id));
+  const undoChopButton = chopEditorEl.querySelector(".undo-chop-button");
+  if (undoChopButton && !undoChopButton.disabled) {
+    undoChopButton.addEventListener("click", () => undoChopEdit(loop.id));
+  }
   chopEditorEl.querySelector(".reverse-chop-button").addEventListener("click", () => toggleReverseSelectedChop(loop.id));
   chopEditorEl.querySelector(".mute-chop-button").addEventListener("click", () => toggleSilentSelectedChop(loop.id));
   chopEditorEl.querySelector(".transform-chop-button").addEventListener("click", () => toggleTransformSelectedChop(loop.id));
@@ -3250,6 +3472,14 @@ function renderChopEditor() {
   chopEditorEl.querySelector(".half-speed-chop-button").addEventListener("click", () => toggleHalfSpeedSelectedChop(loop.id));
   chopEditorEl.querySelector(".double-speed-chop-button").addEventListener("click", () => toggleDoubleSpeedSelectedChop(loop.id));
   chopEditorEl.querySelector(".pick-different-loop-button").addEventListener("click", () => handleChooseDifferentSound(loop.id));
+
+  chopEditorEl.querySelectorAll("[data-play-slot]").forEach(button => {
+    button.addEventListener("click", event => {
+      event.preventDefault();
+      event.stopPropagation();
+      playFromChopSlot(loop.id, Number(button.dataset.playSlot));
+    });
+  });
 
   chopEditorEl.querySelectorAll("[data-grid-size]").forEach(button => {
     button.addEventListener("click", () => changeChopGrid(loop.id, Number(button.dataset.gridSize)));
@@ -4272,6 +4502,24 @@ async function confirmPreviewLoop() {
   await addLoop(loopIdToAdd);
 }
 
+async function playFromChopSlot(loopId, slotIndex) {
+  await ensureAudioContext();
+
+  const loop = getLoopById(loopId);
+  if (!loop) return;
+
+  const recipe = getChopRecipe(loopId);
+  const buffer = await loadBuffer(loop);
+  const safeSlot = Math.max(0, Math.min(recipe.slices - 1, Number(slotIndex) || 0));
+  const ratio = safeSlot / Math.max(1, recipe.slices);
+
+  pausedOffset = ratio * buffer.duration;
+  playingChopSlotByLoopId.set(loopId, safeSlot);
+  updateChopPlayhead(loopId, safeSlot);
+
+  await startAllLoopSources();
+}
+
 async function playBeat() {
   await ensureAudioContext();
 
@@ -4396,10 +4644,9 @@ if (!contributorName || contributorName.trim() === "") {
   render();
   openChopEditor(newLoop.id);
 
-  if (playerCardEl && !hasAutoScrolledToPlayer) {
-    hasAutoScrolledToPlayer = true;
+  if (chopEditorEl) {
     setTimeout(() => {
-      playerCardEl.scrollIntoView({ behavior: "smooth", block: "start" });
+      chopEditorEl.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 80);
   }
 
@@ -4512,6 +4759,7 @@ function newBeat() {
   previewLoopId = null;
   filterPanelOpen = false;
   hasAutoScrolledToPlayer = false;
+  chopUndoByLoopId = {};
 
   render();
 }
