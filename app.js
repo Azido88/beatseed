@@ -33,7 +33,7 @@ const TEXT = {
     load: "Load",
     delete: "Delete",
     chopEditor: "Chop Editor",
-    close: "Close",
+    close: "X",
     grid: "Grid",
     rearrangedLoop: "Step 1: Tap or drag a slot in your rearranged loop",
     originalLoop: "Step 2: Tap a slice below to replace the selected slot",
@@ -182,7 +182,7 @@ const TEXT = {
     load: "載入",
     delete: "刪除",
     chopEditor: "切片編輯器",
-    close: "關閉",
+    close: "X",
     grid: "格數",
     rearrangedLoop: "步驟 1：點選或拖曳上方重新編排的格子",
     originalLoop: "步驟 2：點選下方切片來替換目前選取的格子",
@@ -3408,7 +3408,7 @@ function renderChopEditor() {
           <button class="${recipe.slices === 16 ? "selected" : ""}" data-grid-size="16" type="button">16</button>
           <button class="${recipe.slices === 32 ? "selected" : ""}" data-grid-size="32" type="button">32</button>
         </div>
-        ${pendingContributionLoopId === loop.id ? "" : `<button class="ghost close-chop-button" type="button">${t("close")}</button>`}
+        ${pendingContributionLoopId === loop.id ? "" : `<button class="ghost close-chop-button" type="button" aria-label="${t("close")}">×</button>`}
       </div>
     </div>
 
