@@ -1908,3 +1908,59 @@ body {
 .bottom-row-block .chop-source-slice:active {
   color: rgba(255, 255, 255, 0.9) !important;
 }
+
+/* BeatSeed v38 - mobile grid selector fix */
+@media (max-width: 560px) {
+  .compact-chop-header {
+    flex-direction: column;
+  }
+
+  .chop-header-controls {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .compact-grid-buttons {
+    width: 156px;
+    flex: 0 0 156px;
+    display: grid;
+    grid-template-columns: repeat(2, 72px);
+    gap: 7px 8px;
+    justify-content: start;
+    align-content: start;
+  }
+
+  .compact-grid-buttons .loop-meta {
+    grid-column: 1 / -1;
+    text-align: center;
+    align-self: center;
+    margin: 0 0 -1px 0;
+  }
+
+  .compact-grid-buttons button {
+    width: 72px;
+    height: 38px;
+    border-radius: 999px;
+  }
+
+  .close-chop-button {
+    flex: 0 0 auto;
+  }
+}
+
+@media (max-width: 390px) {
+  .compact-grid-buttons {
+    width: 136px;
+    flex-basis: 136px;
+    grid-template-columns: repeat(2, 64px);
+    gap: 6px 8px;
+  }
+
+  .compact-grid-buttons button {
+    width: 64px;
+    height: 36px;
+  }
+}
